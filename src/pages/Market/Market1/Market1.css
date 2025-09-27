@@ -1,0 +1,81 @@
+.market-container {
+  padding: 20px;
+  text-align: center;
+}
+
+#marketMap {
+  width: 800px;
+  height: 600px;
+  border: 2px solid #333;
+  margin: 20px auto;
+  position: relative;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.stall {
+  width: 100px;
+  height: 100px;
+  background-color: #4caf50;
+  border: 2px solid #388e3c;
+  color: white;
+  font-weight: bold;
+  line-height: 100px;
+  text-align: center;
+  position: absolute;
+  cursor: move;
+  user-select: none;
+  border-radius: 8px;
+}
+
+.stall.reserved {
+  background-color: orange;
+  border-color: darkorange;
+}
+
+.stall.occupied {
+  background-color: red;
+  border-color: darkred;
+}
+
+.upload-form input {
+  margin: 5px;
+  padding: 5px;
+}
+
+.upload-form button {
+  margin-left: 5px;
+  padding: 6px 12px;
+  background-color: #2196f3;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.upload-form button:hover {
+  background-color: #1976d2;
+}
+
+.controls button {
+  margin: 10px;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.controls button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.controls button:nth-child(2) {
+  background-color: #9c27b0;
+}
+
+.controls button:nth-child(2):hover {
+  background-color: #7b1fa2;
+}

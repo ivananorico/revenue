@@ -3,10 +3,12 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Accept");
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
+
 header('Content-Type: application/json; charset=utf-8');
 
 ini_set('display_errors', 0);
@@ -41,14 +43,19 @@ try {
     // delete existing stalls for this map
     $pdo->prepare("DELETE FROM stalls WHERE map_id = ?")->execute([$mapId]);
 
-    $insert = $pdo->prepare("INSERT INTO stalls (map_id, name, pos_x, pos_y, status) VALUES (?, ?, ?, ?, ?)");
+    // insert stalls with price
+    $insert = $pdo->prepare(
+        "INSERT INTO stalls (map_id, name, pos_x, pos_y, status, price) VALUES (?, ?, ?, ?, ?, ?)"
+    );
 
     foreach ($stalls as $s) {
         $name = isset($s['name']) ? trim($s['name']) : 'Stall';
         $x = isset($s['pos_x']) ? (int)$s['pos_x'] : 0;
         $y = isset($s['pos_y']) ? (int)$s['pos_y'] : 0;
         $status = (isset($s['status']) && in_array($s['status'], ['available','reserved','occupied'])) ? $s['status'] : 'available';
-        $insert->execute([$mapId, $name, $x, $y, $status]);
+        $price = isset($s['price']) ? (float)$s['price'] : 0.0;
+
+        $insert->execute([$mapId, $name, $x, $y, $status, $price]);
     }
 
     $pdo->commit();

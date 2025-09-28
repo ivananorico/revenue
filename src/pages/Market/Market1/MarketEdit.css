@@ -1,9 +1,68 @@
 .market-container {
   padding: 20px;
   text-align: center;
+  font-family: Arial, sans-serif;
 }
 
-#marketMap {
+.market-container h1 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 2.2em;
+}
+
+.market-container h2 {
+  color: #34495e;
+  margin-bottom: 15px;
+  font-size: 1.5em;
+}
+
+/* Search input */
+.search-input {
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 15px;
+  width: 300px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #2196f3;
+}
+
+/* Maps table */
+.maps-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto 20px auto;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  max-width: 800px;
+}
+
+.maps-table th,
+.maps-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.maps-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.maps-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Market Map */
+.market-map {
   width: 800px;
   height: 600px;
   border: 2px solid #333;
@@ -12,7 +71,10 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  background-color: white;
 }
+
+/* Stall Styles */
 .stall {
   width: 63px;
   height: 58px;
@@ -20,18 +82,28 @@
   border: 2px solid #388e3c;
   color: white;
   font-weight: bold;
-  text-align: center; /* horizontal fallback */
+  text-align: center;
   position: absolute;
   cursor: move;
   user-select: none;
   font-size: 10px;
-
-  /* New lines for perfect centering */
   display: flex;
-  justify-content: center; /* horizontal center */
-  align-items: center;     /* vertical center */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
+.stall:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.stall.available {
+  background-color: #4caf50;
+  border-color: #388e3c;
+}
 
 .stall.reserved {
   background-color: orange;
@@ -43,22 +115,69 @@
   border-color: darkred;
 }
 
-.upload-form input {
-  margin: 5px;
-  padding: 5px;
+.stall.dragging {
+  opacity: 0.8;
+  transform: scale(1.05);
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-.upload-form button {
-  margin-left: 5px;
-  padding: 6px 12px;
-  background-color: #2196f3;
-  border: none;
-  color: white;
-  cursor: pointer;
+.stall-name {
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1.2;
 }
 
-.upload-form button:hover {
-  background-color: #1976d2;
+.stall-price {
+  font-size: 9px;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+/* Price Modal */
+.price-modal {
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #333;
+  z-index: 1000;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  min-width: 150px;
+}
+
+.price-modal label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+.price-modal input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-top: 4px;
+  box-sizing: border-box;
+}
+
+.price-modal input:focus {
+  outline: none;
+  border-color: #2196f3;
+}
+
+.price-modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* Controls */
+.controls {
+  margin-top: 10px;
 }
 
 .controls button {
@@ -69,6 +188,12 @@
   color: white;
   cursor: pointer;
   border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.controls button:hover {
+  opacity: 0.9;
 }
 
 .controls button:disabled {
@@ -76,10 +201,158 @@
   cursor: not-allowed;
 }
 
-.controls button:nth-child(2) {
-  background-color: #9c27b0;
+.btn-add {
+  background-color: #4caf50 !important;
 }
 
-.controls button:nth-child(2):hover {
-  background-color: #7b1fa2;
+.btn-save-changes {
+  background-color: #9c27b0 !important;
+}
+
+.btn-save-changes:hover {
+  background-color: #7b1fa2 !important;
+}
+
+.btn-back {
+  background-color: #2196f3 !important;
+}
+
+/* Table action buttons */
+.btn-view {
+  padding: 6px 12px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #2196f3;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.btn-view:hover {
+  background-color: #1976d2;
+}
+
+.btn-delete {
+  padding: 6px 12px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #f44336;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.btn-delete:hover {
+  background-color: #d32f2f;
+}
+
+/* Price modal buttons */
+.btn-save {
+  padding: 6px 12px;
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.btn-cancel {
+  padding: 6px 12px;
+  background-color: #9e9e9e;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .market-map {
+    width: 100%;
+    height: 500px;
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .market-container {
+    padding: 15px;
+  }
+  
+  .market-map {
+    height: 400px;
+  }
+  
+  .stall {
+    width: 55px;
+    height: 50px;
+    font-size: 9px;
+  }
+  
+  .stall-name {
+    font-size: 9px;
+  }
+  
+  .stall-price {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .market-map {
+    height: 350px;
+  }
+  
+  .stall {
+    width: 50px;
+    height: 45px;
+    font-size: 8px;
+  }
+  
+  .stall-name {
+    font-size: 8px;
+  }
+  
+  .stall-price {
+    font-size: 7px;
+  }
+  
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .controls button {
+    width: 200px;
+    margin: 5px;
+  }
+}
+
+/* No maps message */
+.market-container p {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin: 20px 0;
+}
+
+/* Context menu prevention */
+.stall {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

@@ -1,0 +1,394 @@
+/* portal.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    color: #333;
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding: 0;
+}
+
+/* Header */
+.header {
+    background: white;
+    padding: 20px 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #ddd;
+}
+
+.header h1 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 2.2em;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Map Selector */
+.map-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.map-selector label {
+    font-weight: bold;
+    color: #2c3e50;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.map-selector select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    min-width: 250px;
+}
+
+.map-selector select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+/* Main Container */
+.main-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 20px;
+    align-items: start;
+}
+
+/* Map Container */
+.map-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.map-container h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Market Map - Similar to your example */
+.market-map {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    border: 2px solid #333;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    overflow: hidden;
+    margin: 0 auto;
+    background-color: white;
+}
+
+/* Stall Styles - Similar to your example */
+.stall {
+    position: absolute;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1px solid #333;
+    text-align: center;
+    width: 63px;
+    height: 58px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+/* Stall colors based on status */
+.stall.available { 
+    background-color: rgba(0, 200, 0, 0.7); 
+    color: #fff; 
+}
+
+.stall.reserved { 
+    background-color: rgba(255, 200, 0, 0.8); 
+    color: #000; 
+}
+
+.stall.occupied { 
+    background-color: rgba(200, 0, 0, 0.8); 
+    color: #fff; 
+}
+
+.stall.selected {
+    background-color: rgba(0, 100, 255, 0.8);
+    color: #fff;
+    border: 2px solid #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.stall:hover {
+    transform: scale(1.05);
+    z-index: 5;
+}
+
+.stall.reserved:hover,
+.stall.occupied:hover {
+    transform: none;
+    cursor: not-allowed;
+}
+
+/* Form Container */
+.form-container {
+    position: sticky;
+    top: 20px;
+}
+
+.reservation-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.reservation-card h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Form Placeholder */
+.form-placeholder {
+    text-align: center;
+    color: #666;
+    padding: 30px 20px;
+}
+
+.placeholder-content p {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Selected Stall Info */
+.selected-stall-info {
+    background: #007bff;
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.selected-stall-info h4 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+/* Form Styles */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 70px;
+    font-family: Arial, sans-serif;
+}
+
+/* Button Styles */
+.form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .market-map {
+        width: 700px;
+        height: 525px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .form-container {
+        position: static;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .market-map {
+        width: 100%;
+        max-width: 800px;
+        height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 15px;
+    }
+    
+    .header {
+        padding: 15px 20px;
+    }
+    
+    .header h1 {
+        font-size: 1.8em;
+        margin-bottom: 12px;
+    }
+    
+    .map-selector {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .map-selector select {
+        min-width: 200px;
+        width: 100%;
+    }
+    
+    .map-container {
+        padding: 15px;
+    }
+    
+    .market-map {
+        height: 400px;
+    }
+    
+    .reservation-card {
+        padding: 15px;
+    }
+    
+    .stall {
+        font-size: 12px;
+        padding: 4px 8px;
+        min-width: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 12px 15px;
+    }
+    
+    .main-container {
+        padding: 10px;
+    }
+    
+    .market-map {
+        height: 350px;
+    }
+    
+    .stall {
+        font-size: 11px;
+        padding: 3px 6px;
+        min-width: 30px;
+    }
+    
+    .form-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Loading state */
+.stall.loading {
+    opacity: 0.7;
+    cursor: wait;
+}

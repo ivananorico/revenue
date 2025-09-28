@@ -1,17 +1,17 @@
 // src/pages/Market/MarketView.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./MarketView.css"; // Make sure this file exists
+import "./MarketView.css";
 
 export default function MarketView() {
   const { id } = useParams(); // map_id from URL
+  const [mapName, setMapName] = useState("");
   const [mapImage, setMapImage] = useState(null);
   const [stalls, setStalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Backend URL
   const API_BASE = "http://localhost/revenue/backend/Market/Market1";
 
   useEffect(() => {
@@ -24,8 +24,12 @@ export default function MarketView() {
         console.log("MarketView response:", data);
 
         if (data.status === "success") {
-          // Fix double uploads issue
-          setMapImage(`${API_BASE}/${data.map.image_path}`);
+          setMapName(data.map.name);
+
+          // Full URL to the uploads folder outside backend
+          const baseUrl = "http://localhost/revenue";
+setMapImage(`${baseUrl}/${data.map.image_path}`);
+
           setStalls(data.stalls || []);
         } else {
           throw new Error(data.message || "Unknown error");
@@ -46,7 +50,7 @@ export default function MarketView() {
 
   return (
     <div className="market-container">
-      <h1>{`Market Map: ${id}`}</h1>
+      <h1>{`Market Map: ${mapName}`}</h1>
 
       <div
         className="market-map"

@@ -9,6 +9,14 @@ export default function MarketEdit() {
   const [search, setSearch] = useState("");
   const [currentMap, setCurrentMap] = useState(null);
   const [stalls, setStalls] = useState([]);
+  const [priceModal, setPriceModal] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    index: null,
+    price: "",
+  });
+
   const marketMapRef = useRef(null);
 
   useEffect(() => {
@@ -50,10 +58,11 @@ export default function MarketEdit() {
       const res = await fetch(`${API_BASE}/get_map.php?map_id=${mapId}`);
       const data = await res.json();
       if (data.status === "success") {
-        if (!data.map.image_path.startsWith("http")) {
-          data.map.image_path = `${API_BASE}/${data.map.image_path}`;
+        let imgPath = data.map.image_path;
+        if (!imgPath.startsWith("http")) {
+          imgPath = `http://localhost/revenue/${imgPath.replace(/^\/+/, "")}`;
         }
-        setCurrentMap(data.map);
+        setCurrentMap({ ...data.map, image_path: imgPath });
         setStalls(data.map.stalls);
       } else alert("Failed to load map: " + (data.message || "Unknown"));
     } catch (err) {
@@ -67,6 +76,7 @@ export default function MarketEdit() {
       pos_x: 50,
       pos_y: 50,
       status: "available",
+      price: "",
     };
     setStalls([...stalls, newStall]);
   };
@@ -79,12 +89,12 @@ export default function MarketEdit() {
 
   const handleDrag = (e, index) => {
     const containerRect = marketMapRef.current.getBoundingClientRect();
-    const x = e.clientX - containerRect.left - 50 / 2;
-    const y = e.clientY - containerRect.top - 50 / 2;
+    const x = e.clientX - containerRect.left - 31.5; // Half of stall width
+    const y = e.clientY - containerRect.top - 29; // Half of stall height
 
     const updated = [...stalls];
-    updated[index].pos_x = Math.max(0, Math.min(containerRect.width - 50, x));
-    updated[index].pos_y = Math.max(0, Math.min(containerRect.height - 50, y));
+    updated[index].pos_x = Math.max(0, Math.min(containerRect.width - 63, x));
+    updated[index].pos_y = Math.max(0, Math.min(containerRect.height - 58, y));
     setStalls(updated);
   };
 
@@ -131,18 +141,18 @@ export default function MarketEdit() {
       <h1>Market Dashboard</h1>
 
       {!currentMap && (
-        <>
+        <div className="maps-list">
           <input
             type="text"
             placeholder="Search maps..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="search-input"
           />
-
           {filteredMaps.length === 0 ? (
             <p>No maps found.</p>
           ) : (
-            <table>
+            <table className="maps-table">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -156,8 +166,16 @@ export default function MarketEdit() {
                     <td>{map.id}</td>
                     <td>{map.name}</td>
                     <td>
-                      <button onClick={() => handleView(map.id)}>View</button>
-                      <button onClick={() => handleDeleteMap(map.id)}>
+                      <button 
+                        className="btn-view" 
+                        onClick={() => handleView(map.id)}
+                      >
+                        View
+                      </button>
+                      <button 
+                        className="btn-delete" 
+                        onClick={() => handleDeleteMap(map.id)}
+                      >
                         Delete
                       </button>
                     </td>
@@ -166,39 +184,103 @@ export default function MarketEdit() {
               </tbody>
             </table>
           )}
-        </>
+        </div>
       )}
 
       {currentMap && (
-        <>
+        <div className="map-editor">
           <h2>{currentMap.name}</h2>
           <div
+            className="market-map"
             id="marketMap"
             ref={marketMapRef}
-            style={{ backgroundImage: `url(${currentMap.image_path})` }}
+            style={{
+              backgroundImage: currentMap.image_path
+                ? `url('${currentMap.image_path}')`
+                : "none",
+            }}
           >
             {stalls.map((stall, index) => (
               <div
                 key={index}
                 className={`stall ${stall.status}`}
-                style={{ left: stall.pos_x, top: stall.pos_y }}
+                style={{
+                  left: stall.pos_x,
+                  top: stall.pos_y,
+                }}
                 onMouseDown={(e) => handleMouseDown(e, index)}
                 onContextMenu={(e) => {
                   e.preventDefault();
-                  toggleStatus(index);
+                  const containerRect = marketMapRef.current.getBoundingClientRect();
+                  let x = e.clientX - containerRect.left;
+                  let y = e.clientY - containerRect.top;
+                  x = Math.min(containerRect.width - 150, x);
+                  y = Math.min(containerRect.height - 80, y);
+                  setPriceModal({
+                    visible: true,
+                    x,
+                    y,
+                    index,
+                    price: stall.price || "",
+                  });
                 }}
               >
-                {stall.name}
-                <button onClick={() => deleteStall(index)}> </button>
+                <div className="stall-name">{stall.name}</div>
+                <div className="stall-price">₱{stall.price}</div>
               </div>
             ))}
           </div>
+
+          {/* Price input modal */}
+          {priceModal.visible && (
+            <div
+              className="price-modal"
+              style={{
+                position: "fixed",
+                top: priceModal.y,
+                left: priceModal.x,
+              }}
+            >
+              <label>
+                Price:
+                <input
+                  type="number"
+                  value={priceModal.price}
+                  onChange={(e) =>
+                    setPriceModal({ ...priceModal, price: e.target.value })
+                  }
+                />
+              </label>
+              <div className="price-modal-buttons">
+                <button
+                  className="btn-save"
+                  onClick={() => {
+                    const updated = [...stalls];
+                    updated[priceModal.index].price = priceModal.price;
+                    setStalls(updated);
+                    setPriceModal({ ...priceModal, visible: false });
+                  }}
+                >
+                  Save
+                </button>
+                <button
+                  className="btn-cancel"
+                  onClick={() =>
+                    setPriceModal({ ...priceModal, visible: false })
+                  }
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="controls">
-            <button onClick={addStall}>Add Stall</button>
-            <button onClick={saveStalls}>Save Changes</button>
-            <button onClick={() => setCurrentMap(null)}>Back to Maps</button>
+            <button className="btn-add" onClick={addStall}>Add Stall</button>
+            <button className="btn-save-changes" onClick={saveStalls}>Save Changes</button>
+            <button className="btn-back" onClick={() => setCurrentMap(null)}>Back to Maps</button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

@@ -13,7 +13,6 @@
   background-repeat: no-repeat;
   background-position: center;
 }
-
 .stall {
   width: 63px;
   height: 58px;
@@ -32,6 +31,7 @@
   justify-content: center; /* horizontal center */
   align-items: center;     /* vertical center */
 }
+
 
 .stall.reserved {
   background-color: orange;

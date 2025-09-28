@@ -34,6 +34,7 @@ import Digital3 from './pages/Digital/Digital3'
 import Market1 from './pages/Market/Market1/Market1'
 import Market2 from './pages/Market/Market2'
 import MarketView from './pages/Market/Market1/MarketView'
+import MarketEdit from './pages/Market/Market1/MarketEdit'
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -88,6 +89,8 @@ function App() {
               <Route path="/Market/Market1/Market1" element={<Market1 />} />
               <Route path="/Market/Market2" element={<Market2 />} />
               <Route path="/Market/view/:id" element={<MarketView />} />
+              <Route path="/Market/edit" element={<MarketEdit />} />
+              <Route path="/Market/edit/:id" element={<MarketEdit />} />
 
               {/* Settings */}
               <Route path="/settings/general" element={<GeneralSettings />} />

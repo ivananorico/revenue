@@ -69,7 +69,7 @@ export default function MarketView() {
       </div>
 
       <div className="controls">
-        <button onClick={() => navigate("/Market/Market1")}>
+        <button onClick={() => navigate("/Market/Market1/Market1")}>
           Back to Market Dashboard
         </button>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Market1.css";
 
@@ -96,7 +96,12 @@ export default function Market1() {
     document.addEventListener("mouseup", onMouseUp);
   };
 
-
+  const changeStatus = (index) => {
+    const updated = [...stalls];
+    updated[index].status =
+      updated[index].status === "available" ? "occupied" : "available";
+    setStalls(updated);
+  };
 
   return (
     <div className="market-container">
@@ -104,7 +109,11 @@ export default function Market1() {
 
       {/* Upload map form */}
       {!isFinished && (
-        <form onSubmit={handleUpload} encType="multipart/form-data" className="upload-form">
+        <form
+          onSubmit={handleUpload}
+          encType="multipart/form-data"
+          className="upload-form"
+        >
           <input type="text" name="mapName" placeholder="Map Name" required />
           <input type="file" name="mapImage" accept="image/*" required />
           <button type="submit">Upload Map</button>
@@ -116,7 +125,9 @@ export default function Market1() {
         id="marketMap"
         ref={marketMapRef}
         className="market-map"
-        style={{ backgroundImage: mapImage ? `url('${mapImage}')` : "none" }}
+        style={{
+          backgroundImage: mapImage ? `url('${mapImage}')` : "none",
+        }}
       >
         {stalls.map((stall, index) => (
           <div
@@ -127,7 +138,14 @@ export default function Market1() {
               top: stall.pos_y,
             }}
             onMouseDown={isFinished ? null : (e) => handleMouseDown(e, index)}
-            onContextMenu={isFinished ? null : (e) => { e.preventDefault(); changeStatus(index); }}
+            onContextMenu={
+              isFinished
+                ? null
+                : (e) => {
+                    e.preventDefault();
+                    changeStatus(index);
+                  }
+            }
           >
             {stall.name}
           </div>
@@ -137,8 +155,18 @@ export default function Market1() {
       {/* Controls */}
       {!isFinished && (
         <div className="controls">
-          <button onClick={addStall} disabled={!mapId}>Add Stall</button>
-          <button onClick={saveStalls} disabled={!mapId}>Save Stalls</button>
+          <button onClick={addStall} disabled={!mapId}>
+            Add Stall
+          </button>
+          <button onClick={saveStalls} disabled={!mapId}>
+            Save Stalls
+          </button>
+          <button
+            onClick={() => navigate("/Market/edit")}
+            className="ml-2 bg-gray-500 text-white px-2 py-1 rounded"
+          >
+            View All Maps
+          </button>
         </div>
       )}
     </div>

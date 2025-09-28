@@ -8,8 +8,8 @@ import Digital1 from './pages/Digital/Digital1'
 // Market (both inside Market1 folder)
 import Market1 from './pages/Market/Market1/Market1'
 import MarketView from './pages/Market/Market1/MarketView'
-// later you can add MarketEdit
-// import MarketEdit from './pages/Market/Market1/MarketEdit'
+import MarketEdit from './pages/Market/Market1/MarketEdit'
+
 
 import GeneralSettings from './pages/settings/General'
 import SecuritySettings from './pages/settings/Security'
@@ -45,11 +45,10 @@ const routes = [
     path: '/Market/view/:id',   // dynamic route for MarketView
     element: <MarketView />,
   },
-  // later for edit:
-  // {
-  //   path: '/Market/edit/:id',
-  //   element: <MarketEdit />,
-  // },
+  {
+    path: '/Market/edit/:id',
+    element: <MarketEdit />,
+  },
 
   {
     path: '/settings/general',

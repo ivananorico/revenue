@@ -73,7 +73,7 @@ setMapImage(`${baseUrl}/${data.map.image_path}`);
       </div>
 
       <div className="controls">
-        <button onClick={() => navigate("/Market/Market1/Market1")}>
+        <button onClick={() => navigate("/Market1/Market1")}>
           Back to Market Dashboard
         </button>
       </div>

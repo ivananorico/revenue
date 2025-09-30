@@ -69,7 +69,8 @@ if ($map_id) {
                          data-stall-name="<?= htmlspecialchars($stall['name']) ?>"
                          data-price="<?= $stall['price'] ?>"
                          style="left: <?= $stall['pos_x'] ?>px; top: <?= $stall['pos_y'] ?>px;">
-                         <?= htmlspecialchars($stall['name']) ?>
+                         <?= htmlspecialchars($stall['name']) ?><br>
+                         ₱<?= number_format($stall['price'], 2) ?>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -90,6 +91,7 @@ if ($map_id) {
                     
                     <div class="selected-stall-info">
                         <h4 id="selectedStallName"></h4>
+                        <p id="selectedStallPrice"></p>
                     </div>
                     
                     <div class="form-grid">
@@ -146,6 +148,10 @@ document.querySelectorAll('.stall').forEach(stall => {
         document.getElementById('selectedStallName').textContent = 
             'Reserving: ' + stall.getAttribute('data-stall-name');
         document.getElementById('stall_id').value = stall.getAttribute('data-stall-id');
+
+        // Show price in form
+        document.getElementById('selectedStallPrice').textContent =
+            'Price: ₱' + parseFloat(stall.getAttribute('data-price')).toLocaleString();
         
         // Show form
         document.getElementById('formPlaceholder').style.display = 'none';

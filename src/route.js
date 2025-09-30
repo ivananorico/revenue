@@ -1,63 +1,48 @@
 import Dashboard from './pages/Dashboard'
-import Module1 from './pages/RPT/Module'
 import RPT1 from './pages/RPT/RPT1'
 import Business1 from './pages/Business/Business1'
 import Treasury1 from './pages/Treasury/Treasury1'
 import Digital1 from './pages/Digital/Digital1'
 
-// Market (both inside Market1 folder)
+// Market1
 import Market1 from './pages/Market/Market1/Market1'
 import MarketView from './pages/Market/Market1/MarketView'
 import MarketEdit from './pages/Market/Market1/MarketEdit'
 
+// Market2
+import Market2 from './pages/Market/Market2/Market2'
+import RenterDetails from './pages/Market/Market2/RenterDetails'
 
 import GeneralSettings from './pages/settings/General'
 import SecuritySettings from './pages/settings/Security'
 
 const routes = [
-  {
-    path: '/dashboard',
-    element: <Dashboard />,
-  },
-  {
-    path: '/RPT/rpt1',
-    element: <RPT1 />,
-  },
-  {
-    path: '/Business/Business1',
-    element: <Business1 />,
-  },
-  {
-    path: '/Treasury/Treasury1',
-    element: <Treasury1 />,
-  },
-  {
-    path: '/Digital/Digital1',
-    element: <Digital1 />,
-  },
+  { path: '/dashboard', element: <Dashboard /> },
 
-  // ✅ Market
-  {
-    path: '/Market/market1',    // main Market1 page
-    element: <Market1 />,
-  },
-  {
-    path: '/Market/view/:id',   // dynamic route for MarketView
-    element: <MarketView />,
-  },
-  {
-    path: '/Market/edit/:id',
-    element: <MarketEdit />,
-  },
+  // RPT
+  { path: '/rpt/rpt1', element: <RPT1 /> },
 
-  {
-    path: '/settings/general',
-    element: <GeneralSettings />,
-  },
-  {
-    path: '/settings/security',
-    element: <SecuritySettings />,
-  },
+  // Business
+  { path: '/business/business1', element: <Business1 /> },
+
+  // Treasury
+  { path: '/treasury/treasury1', element: <Treasury1 /> },
+
+  // Digital
+  { path: '/digital/digital1', element: <Digital1 /> },
+
+  // Market1
+  { path: '/market/market1', element: <Market1 /> },
+  { path: '/market/view/:id', element: <MarketView /> },
+  { path: '/market/edit/:id', element: <MarketEdit /> },
+
+  // Market2
+  { path: '/market/market2', element: <Market2 /> },
+  { path: '/market2/renter/:id', element: <RenterDetails /> },
+
+  // Settings
+  { path: '/settings/general', element: <GeneralSettings /> },
+  { path: '/settings/security', element: <SecuritySettings /> },
 ]
 
 export default routes

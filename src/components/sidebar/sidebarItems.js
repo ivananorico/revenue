@@ -95,12 +95,12 @@ const sidebarItems = [
     subItems: [
       {
         id: "submodule5",
-        label: "Market register",
-        path: "/Market/Market1/Market1"
+        label: "Market Stall Map Creator",
+        path: "/Market1/Market1"
       },
       {
         id: "submodule5",
-        label: "Market Dashboard",
+        label: "Market Stall Rent Management",
         path: "/Market/Market2"
       },
      

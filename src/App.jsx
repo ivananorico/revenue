@@ -30,11 +30,13 @@ import Digital1 from './pages/Digital/Digital1'
 import Digital2 from './pages/Digital/Digital2'
 import Digital3 from './pages/Digital/Digital3'
 
-// Market
+// Market1
 import Market1 from './pages/Market/Market1/Market1'
-import Market2 from './pages/Market/Market2'
 import MarketView from './pages/Market/Market1/MarketView'
 import MarketEdit from './pages/Market/Market1/MarketEdit'
+// Market2
+import Market2 from './pages/Market/Market2/Market2'
+import RenterDetails from './pages/Market/Market2/RenterDetails'
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -86,11 +88,13 @@ function App() {
               <Route path="/Digital/Digital3" element={<Digital3 />} />
 
               {/* Market */}
-              <Route path="/Market/Market1/Market1" element={<Market1 />} />
-              <Route path="/Market/Market2" element={<Market2 />} />
+              <Route path="/Market1/Market1" element={<Market1 />} />
               <Route path="/Market/view/:id" element={<MarketView />} />
               <Route path="/Market/edit" element={<MarketEdit />} />
               <Route path="/Market/edit/:id" element={<MarketEdit />} />
+              {/* Market2 */}
+              <Route path="/Market/Market2" element={<Market2 />} />
+              <Route path="/Market/RenterDetails/:id" element={<RenterDetails />} />
 
               {/* Settings */}
               <Route path="/settings/general" element={<GeneralSettings />} />

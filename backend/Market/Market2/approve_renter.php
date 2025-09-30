@@ -1,38 +1,73 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+header("Access-Control-Allow-Headers: Content-Type, Accept");
+header('Content-Type: application/json');
 
-require_once 'db.php'; // your database connection
+require_once "db_market.php"; // PDO connection
 
 $data = json_decode(file_get_contents("php://input"), true);
+$renter_id = isset($data['id']) ? (int)$data['id'] : 0;
 
-if (!isset($data['id'])) {
-    echo json_encode(['success' => false, 'message' => 'No ID provided']);
+if (!$renter_id) {
+    echo json_encode(['success' => false, 'message' => 'No renter ID provided']);
     exit;
 }
 
-$id = (int)$data['id'];
-
-// Update renter status and stall status
 try {
-    // Update renter
+    $pdo->beginTransaction();
+
+    // 1. Update renter status
     $stmt = $pdo->prepare("UPDATE renters SET status = 'active' WHERE id = ?");
-    $stmt->execute([$id]);
+    $stmt->execute([$renter_id]);
 
-    // Get the stall_id of this renter
-    $stmt2 = $pdo->prepare("SELECT stall_id FROM renters WHERE id = ?");
-    $stmt2->execute([$id]);
-    $stall_id = $stmt2->fetchColumn();
+    // 2. Get renter info + stall price
+    $stmt = $pdo->prepare("
+        SELECT r.stall_id, r.date_reserved, s.price AS rent_amount
+        FROM renters r
+        JOIN stalls s ON r.stall_id = s.id
+        WHERE r.id = ?
+    ");
+    $stmt->execute([$renter_id]);
+    $renter = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Update stall status
-    if ($stall_id) {
-        $stmt3 = $pdo->prepare("UPDATE stalls SET status = 'occupied' WHERE id = ?");
-        $stmt3->execute([$stall_id]);
+    if ($renter) {
+        $stall_id = $renter['stall_id'];
+        $date_reserved = new DateTime($renter['date_reserved']);
+        $rent_amount = $renter['rent_amount'];
+
+        // 3. Update stall status
+        $stmt = $pdo->prepare("UPDATE stalls SET status = 'occupied' WHERE id = ?");
+        $stmt->execute([$stall_id]);
+
+        // 4. Generate monthly rent starting next month
+        $endMonth = new DateTime($date_reserved->format('Y-12-01'));
+        $currentMonth = (clone $date_reserved)->modify('first day of next month');
+
+        while ($currentMonth <= $endMonth) {
+            $daysInMonth = (int)$currentMonth->format('t');
+            $amountDue = $rent_amount; // full month amount
+
+            $dueDate = $currentMonth->format('Y-m-05'); // due date 5th
+
+            $stmtInsert = $pdo->prepare("
+                INSERT INTO monthly_rent (renter_id, rent_month, amount_due, due_date, penalty, status)
+                VALUES (?, ?, ?, ?, 0, 'unpaid')
+            ");
+            $stmtInsert->execute([
+                $renter_id,
+                $currentMonth->format('Y-m-01'),
+                $amountDue,
+                $dueDate
+            ]);
+
+            $currentMonth->modify('+1 month');
+        }
     }
 
-    echo json_encode(['success' => true]);
+    $pdo->commit();
+    echo json_encode(['success' => true, 'message' => 'Renter approved and monthly rent generated starting next month.']);
 } catch (Exception $e) {
+    $pdo->rollBack();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

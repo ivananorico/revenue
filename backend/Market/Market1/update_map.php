@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include 'db.php';
+include 'db_market.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 

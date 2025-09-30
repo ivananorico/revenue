@@ -55,7 +55,7 @@ try {
     $imagePath = 'uploads/' . $filename;
 
     // Insert into DB
-    require_once __DIR__ . '/db.php';
+    require_once __DIR__ . '/db_market.php';
     if (!isset($pdo) || !$pdo) {
         throw new Exception('DB connection not available');
     }

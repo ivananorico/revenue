@@ -1,9 +1,9 @@
-// src/pages/Market/MarketView.jsx
+// src/pages/Market/MapOutput.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./MarketView.css";
+import "./MapOutput.css";
 
-export default function MarketView() {
+export default function MapOutput() {
   const { id } = useParams(); // map_id from URL
   const [mapName, setMapName] = useState("");
   const [mapImage, setMapImage] = useState(null);
@@ -21,7 +21,7 @@ export default function MarketView() {
         if (!res.ok) throw new Error("Network error");
 
         const data = await res.json();
-        console.log("MarketView response:", data);
+        console.log("MapOutput response:", data);
 
         if (data.status === "success") {
           setMapName(data.map.name);

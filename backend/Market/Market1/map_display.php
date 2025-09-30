@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
 
-include 'db.php'; // adjust path if needed
+include 'db_market.php'; // adjust path if needed
 
 $map_id = isset($_GET['map_id']) ? intval($_GET['map_id']) : 0;
 

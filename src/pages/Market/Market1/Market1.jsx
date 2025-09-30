@@ -46,7 +46,13 @@ export default function Market1() {
   const addStall = () => {
     const newCount = stallCount + 1;
     setStallCount(newCount);
-    const newStall = { name: `Stall ${newCount}`, pos_x: 50, pos_y: 50, status: "available", price: 0 };
+    const newStall = { 
+      name: `Stall ${newCount}`, 
+      pos_x: 50, 
+      pos_y: 50, 
+      status: "available", 
+      price: 0 
+    };
     setStalls([...stalls, newStall]);
   };
 
@@ -62,7 +68,7 @@ export default function Market1() {
       const data = await res.json();
       if (data.status === "success") {
         alert("Stalls saved!");
-        navigate(`/Market/view/${mapId}`);
+        navigate(`/Market1/view/${mapId}`);
       } else alert("Save failed: " + (data.message || "Unknown"));
     } catch (err) {
       alert("Save error: " + err.message);
@@ -72,12 +78,12 @@ export default function Market1() {
   // Drag stalls
   const handleDrag = (e, index) => {
     const containerRect = marketMapRef.current.getBoundingClientRect();
-    const x = e.clientX - containerRect.left - 25;
-    const y = e.clientY - containerRect.top - 25;
+    const x = e.clientX - containerRect.left - 31.5; // Half of stall width (63px/2)
+    const y = e.clientY - containerRect.top - 29; // Half of stall height (58px/2)
 
     const updated = [...stalls];
-    updated[index].pos_x = Math.max(0, Math.min(containerRect.width - 50, x));
-    updated[index].pos_y = Math.max(0, Math.min(containerRect.height - 50, y));
+    updated[index].pos_x = Math.max(0, Math.min(containerRect.width - 63, x));
+    updated[index].pos_y = Math.max(0, Math.min(containerRect.height - 58, y));
     setStalls(updated);
   };
 
@@ -102,8 +108,8 @@ export default function Market1() {
     // Position modal near cursor but inside the container
     let x = e.clientX - containerRect.left;
     let y = e.clientY - containerRect.top;
-    x = Math.min(containerRect.width - 150, x); // 150 = modal width
-    y = Math.min(containerRect.height - 100, y); // 100 = modal height
+    x = Math.min(containerRect.width - 150, x);
+    y = Math.min(containerRect.height - 100, y);
     setModalPos({ x, y });
 
     setModalOpen(true);
@@ -143,8 +149,12 @@ export default function Market1() {
             onMouseDown={isFinished ? null : (e) => handleMouseDown(e, index)}
             onContextMenu={(e) => openPriceModal(index, e)}
           >
-            <div>{stall.name}</div>
-            <div style={{ fontSize: "11px" }}>{stall.price > 0 ? `₱${stall.price}` : ""}</div>
+            <div className="stall-content">
+              <div className="stall-name">{stall.name}</div>
+              <div className="stall-price">
+                {stall.price > 0 ? `₱${stall.price}` : ""}
+              </div>
+            </div>
           </div>
         ))}
 
@@ -161,9 +171,9 @@ export default function Market1() {
               onChange={(e) => setStallPrice(e.target.value)}
               step="0.01"
             />
-            <div style={{ marginTop: "5px" }}>
+            <div className="modal-buttons">
               <button onClick={savePrice}>Save</button>
-              <button onClick={() => setModalOpen(false)} style={{ marginLeft: "5px" }}>Cancel</button>
+              <button onClick={() => setModalOpen(false)}>Cancel</button>
             </div>
           </div>
         )}
@@ -173,10 +183,7 @@ export default function Market1() {
         <div className="controls">
           <button onClick={addStall} disabled={!mapId}>Add Stall</button>
           <button onClick={saveStalls} disabled={!mapId}>Save Stalls</button>
-          <button
-            onClick={() => navigate("/Market/edit")}
-            className="ml-2 bg-gray-500 text-white px-2 py-1 rounded"
-          >
+          <button onClick={() => navigate("/Market1/edit")}>
             View All Maps
           </button>
         </div>

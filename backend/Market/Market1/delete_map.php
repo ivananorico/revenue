@@ -13,11 +13,7 @@ if (!isset($data['map_id'])) {
 
 $map_id = $data['map_id'];
 
-$host = "localhost";
-$port = 3307; // your port
-$dbname = "market";
-$user = "root";
-$pass = "";
+require_once "db_market.php"; // PDO connection
 
 try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname", $user, $pass);

@@ -3,7 +3,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Accept");
 header('Content-Type: application/json');
-include 'db.php'; // database connection
+include 'db_market.php'; // database connection
 
 try {
     $stmt = $pdo->query("SELECT * FROM renters"); // adjust table name

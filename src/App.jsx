@@ -32,7 +32,7 @@ import Digital3 from './pages/Digital/Digital3'
 
 // Market1
 import Market1 from './pages/Market/Market1/Market1'
-import MarketView from './pages/Market/Market1/MarketView'
+import MapOutput from './pages/Market/Market1/MapOutput'
 import MarketEdit from './pages/Market/Market1/MarketEdit'
 // Market2
 import Market2 from './pages/Market/Market2/Market2'
@@ -89,12 +89,12 @@ function App() {
 
               {/* Market */}
               <Route path="/Market1/Market1" element={<Market1 />} />
-              <Route path="/Market/view/:id" element={<MarketView />} />
-              <Route path="/Market/edit" element={<MarketEdit />} />
-              <Route path="/Market/edit/:id" element={<MarketEdit />} />
+              <Route path="/Market1/view/:id" element={<MapOutput />} />
+              <Route path="/Market1/edit" element={<MarketEdit />} />
+              <Route path="/Market1/edit/:id" element={<MarketEdit />} />
               {/* Market2 */}
-              <Route path="/Market/Market2" element={<Market2 />} />
-              <Route path="/Market/RenterDetails/:id" element={<RenterDetails />} />
+              <Route path="/Market2/Market2" element={<Market2 />} />
+              <Route path="/Market2/RenterDetails/:id" element={<RenterDetails />} />
 
               {/* Settings */}
               <Route path="/settings/general" element={<GeneralSettings />} />

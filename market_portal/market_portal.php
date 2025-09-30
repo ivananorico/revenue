@@ -1,5 +1,5 @@
 <?php
-require_once "db.php"; // path to your db.php
+require_once "db_market.php";
 
 // Handle selected map
 $map_id = isset($_GET['map_id']) ? (int)$_GET['map_id'] : null;
@@ -9,7 +9,7 @@ $stalls = [];
 // Fetch maps for dropdown
 $mapsList = $pdo->query("SELECT * FROM maps ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
 
-$mapUrl = ''; // default
+$mapUrl = '';
 
 if ($map_id) {
     // Get map info
@@ -23,8 +23,8 @@ if ($map_id) {
         $stallsStmt->execute([$map_id]);
         $stalls = $stallsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Use the path as stored in DB (don't modify it)
-        $mapUrl = $map['image_path']; 
+        // Use the path as stored in DB
+        $mapUrl = $map['image_path'];
         if (!preg_match('#^https?://#', $mapUrl)) {
             $mapUrl = "http://localhost/revenue/" . ltrim($mapUrl, '/');
         }
@@ -61,17 +61,26 @@ if ($map_id) {
         <div class="map-container">
             <h2><?= htmlspecialchars($map['name']) ?></h2>
             <div class="market-map" id="marketMap" style="background-image: url('<?= htmlspecialchars($mapUrl) ?>');">
-                <?php foreach($stalls as $stall): 
-                    $statusClass = ($stall['status'] === 'reserved') ? 'reserved' : 'available';
+                <?php foreach($stalls as $stall):
+                    // Correct status handling
+                    if ($stall['status'] === 'available') {
+                        $statusClass = 'available';
+                    } elseif ($stall['status'] === 'reserved') {
+                        $statusClass = 'reserved';
+                    } elseif ($stall['status'] === 'occupied') {
+                        $statusClass = 'occupied';
+                    } else {
+                        $statusClass = 'available'; // fallback
+                    }
                 ?>
                     <div class="stall <?= $statusClass ?>"
-                         data-stall-id="<?= $stall['id'] ?>"
-                         data-stall-name="<?= htmlspecialchars($stall['name']) ?>"
-                         data-price="<?= $stall['price'] ?>"
-                         style="left: <?= $stall['pos_x'] ?>px; top: <?= $stall['pos_y'] ?>px;">
-                         <?= htmlspecialchars($stall['name']) ?><br>
-                         ₱<?= number_format($stall['price'], 2) ?>
-                    </div>
+     data-stall-id="<?= $stall['id'] ?>"
+     data-stall-name="<?= htmlspecialchars($stall['name']) ?>"
+     data-price="<?= $stall['price'] ?>"
+     style="left: <?= $stall['pos_x'] ?>px; top: <?= $stall['pos_y'] ?>px;">
+     <?= htmlspecialchars($stall['name']) ?>
+</div>
+
                 <?php endforeach; ?>
             </div>
         </div>
@@ -132,37 +141,28 @@ let selectedStall = null;
 
 document.querySelectorAll('.stall').forEach(stall => {
     stall.addEventListener('click', () => {
-        if(stall.classList.contains('reserved')){
-            alert('This stall is already reserved!');
+        if(stall.classList.contains('reserved') || stall.classList.contains('occupied')){
+            alert('This stall is not available!');
             return;
         }
-        
-        // Remove previous selection
+
         document.querySelectorAll('.stall').forEach(s => s.classList.remove('selected'));
-        
-        // Set new selection
         stall.classList.add('selected');
         selectedStall = stall;
-        
-        // Update form
+
         document.getElementById('selectedStallName').textContent = 
             'Reserving: ' + stall.getAttribute('data-stall-name');
         document.getElementById('stall_id').value = stall.getAttribute('data-stall-id');
-
-        // Show price in form
         document.getElementById('selectedStallPrice').textContent =
             'Price: ₱' + parseFloat(stall.getAttribute('data-price')).toLocaleString();
-        
-        // Show form
+
         document.getElementById('formPlaceholder').style.display = 'none';
         document.getElementById('renterForm').style.display = 'block';
-        // Reset form fields
+
         document.getElementById('full_name').value = '';
         document.getElementById('contact_number').value = '';
         document.getElementById('email').value = '';
         document.getElementById('address').value = '';
-        
-        // Focus on first field
         document.getElementById('full_name').focus();
     });
 });
@@ -204,7 +204,6 @@ document.getElementById('renterForm').addEventListener('submit', async function(
     }
 });
 
-// Close form when clicking on map area (but not on stalls)
 document.getElementById('marketMap').addEventListener('click', function(e) {
     if (e.target === this) {
         clearSelection();

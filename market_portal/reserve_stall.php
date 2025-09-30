@@ -1,5 +1,5 @@
 <?php
-require_once "db.php";
+require_once "db_market.php";
 
 if($_SERVER['REQUEST_METHOD']==='POST'){
     $stall_id = $_POST['stall_id'] ?? 0;

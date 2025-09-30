@@ -1,0 +1,307 @@
+/* RenterDetails.css */
+.renter-details-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.renter-details-container h1 {
+  color: #ff6b35;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  font-weight: 600;
+  border-bottom: 2px solid #ff6b35;
+  padding-bottom: 10px;
+}
+
+/* Renter Info Section */
+.renter-info-section {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.renter-info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.renter-info-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.renter-info-table tr:last-child td {
+  border-bottom: none;
+}
+
+.renter-info-table td:first-child {
+  width: 200px;
+  font-weight: 600;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+.renter-info-table td:last-child {
+  color: #555;
+}
+
+/* Input Fields */
+.renter-info-table input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.renter-info-table input:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-approve {
+  background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-approve:hover {
+  background: linear-gradient(135deg, #218838 0%, #2db44d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-edit:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-save:hover {
+  background: linear-gradient(135deg, #218838 0%, #2db44d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-cancel {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cancel:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Monthly Rent Section */
+.monthly-rent-section {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.monthly-rent-section h2 {
+  color: #ff6b35;
+  margin: 0;
+  padding: 20px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.rent-table-container {
+  overflow-x: auto;
+}
+
+.rent-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.rent-table th {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8e53 100%);
+  color: white;
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rent-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #333;
+}
+
+.rent-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.rent-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status Badges */
+.status-pending {
+  background: #ffc107;
+  color: #212529;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-paid {
+  background: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-overdue {
+  background: #dc3545;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* No Data Message */
+.no-data {
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+  padding: 40px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .renter-details-container {
+    padding: 15px;
+  }
+  
+  .renter-details-container h1 {
+    font-size: 1.5rem;
+  }
+  
+  .renter-info-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+  
+  .renter-info-table td:first-child {
+    width: 150px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons button {
+    width: 100%;
+  }
+  
+  .rent-table th,
+  .rent-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .renter-details-container {
+    padding: 10px;
+  }
+  
+  .renter-info-table {
+    display: block;
+  }
+  
+  .renter-info-table tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .renter-info-table td {
+    border-bottom: none;
+  }
+  
+  .renter-info-table td:first-child {
+    width: 100%;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+  }
+}

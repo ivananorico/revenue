@@ -30,9 +30,9 @@ try {
         throw new Exception('Missing map_id or stalls');
     }
 
-    require_once __DIR__ . '/db.php';
+    require_once __DIR__ . '/db_market.php';
     if (!isset($pdo) || !$pdo) {
-        throw new Exception('DB connection not available (check db.php)');
+        throw new Exception('DB connection not available (check db_market)');
     }
 
     $mapId = (int)$payload['map_id'];

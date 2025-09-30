@@ -6,7 +6,7 @@ import Digital1 from './pages/Digital/Digital1'
 
 // Market1
 import Market1 from './pages/Market/Market1/Market1'
-import MarketView from './pages/Market/Market1/MarketView'
+import MapOutput from './pages/Market/Market1/MapOutput'
 import MarketEdit from './pages/Market/Market1/MarketEdit'
 
 // Market2
@@ -32,12 +32,12 @@ const routes = [
   { path: '/digital/digital1', element: <Digital1 /> },
 
   // Market1
-  { path: '/market/market1', element: <Market1 /> },
-  { path: '/market/view/:id', element: <MarketView /> },
-  { path: '/market/edit/:id', element: <MarketEdit /> },
+  { path: '/market1/market1', element: <Market1 /> },
+  { path: '/market1/view/:id', element: <MapOutput /> },
+  { path: '/market1/edit/:id', element: <MarketEdit /> },
 
   // Market2
-  { path: '/market/market2', element: <Market2 /> },
+  { path: '/market2/market2', element: <Market2 /> },
   { path: '/market2/renter/:id', element: <RenterDetails /> },
 
   // Settings

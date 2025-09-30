@@ -4,7 +4,7 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Accept");
 
 header('Content-Type: application/json');
-require 'db.php';
+require 'db_market.php';
 
 if (!isset($_GET['map_id'])) {
     echo json_encode(['status'=>'error','message'=>'map_id is required']);

@@ -1,18 +1,27 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Accept");
+header("Content-Type: application/json");
 
-require_once "db.php"; // adjust path if needed
+require_once "db_market.php"; // PDO connection
 
-// Fetch renters + stall info
-$sql = "SELECT r.id, r.renter_ref, r.full_name, r.contact_number, r.email, r.address, 
-               r.date_reserved, r.status AS renter_status, 
-               s.name AS stall_name, s.status AS stall_status
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if (!$id) {
+    echo json_encode([]);
+    exit;
+}
+
+try {
+    $stmt = $pdo->prepare("
+        SELECT r.*, s.name AS stall_name, s.status AS stall_status
         FROM renters r
-        JOIN stalls s ON r.stall_id = s.id";
+        JOIN stalls s ON r.stall_id = s.id
+        WHERE r.id = ?
+    ");
+    $stmt->execute([$id]);
+    $renter = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->query($sql);
-$renters = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-echo json_encode($renters);
+    echo json_encode($renter ? [$renter] : []);
+} catch (Exception $e) {
+    echo json_encode([]);
+}

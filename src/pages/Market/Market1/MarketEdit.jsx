@@ -25,7 +25,7 @@ export default function MarketEdit() {
 
   const fetchMaps = async () => {
     try {
-      const res = await fetch(`${API_BASE}/get_maps.php`);
+      const res = await fetch(`${API_BASE}/all_maps.php`);
       const data = await res.json();
       if (data.status === "success") setMaps(data.maps);
       else alert("Failed to fetch maps: " + (data.message || "Unknown"));
@@ -201,34 +201,47 @@ export default function MarketEdit() {
             }}
           >
             {stalls.map((stall, index) => (
-              <div
-                key={index}
-                className={`stall ${stall.status}`}
-                style={{
-                  left: stall.pos_x,
-                  top: stall.pos_y,
-                }}
-                onMouseDown={(e) => handleMouseDown(e, index)}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  const containerRect = marketMapRef.current.getBoundingClientRect();
-                  let x = e.clientX - containerRect.left;
-                  let y = e.clientY - containerRect.top;
-                  x = Math.min(containerRect.width - 150, x);
-                  y = Math.min(containerRect.height - 80, y);
-                  setPriceModal({
-                    visible: true,
-                    x,
-                    y,
-                    index,
-                    price: stall.price || "",
-                  });
-                }}
-              >
-                <div className="stall-name">{stall.name}</div>
-                <div className="stall-price">₱{stall.price}</div>
-              </div>
-            ))}
+  <div
+    key={index}
+    className={`stall ${stall.status}`}
+    style={{
+      left: stall.pos_x,
+      top: stall.pos_y,
+    }}
+    onMouseDown={(e) => handleMouseDown(e, index)}
+    onContextMenu={(e) => {
+  e.preventDefault();
+
+  const marketRect = marketMapRef.current.getBoundingClientRect();
+  const stallWidth = 63; // same as your CSS
+  const stallHeight = 58;
+
+  // Calculate position relative to the viewport
+  let x = marketRect.left + stall.pos_x + stallWidth + 5; // 5px gap to the right
+  let y = marketRect.top + stall.pos_y; // top aligned with stall
+
+  // Optional: make sure modal doesn't go outside viewport
+  const modalWidth = 150;
+  const modalHeight = 80;
+  x = Math.min(window.innerWidth - modalWidth, x);
+  y = Math.min(window.innerHeight - modalHeight, y);
+
+  setPriceModal({
+    visible: true,
+    x,
+    y,
+    index,
+    price: stall.price || "",
+  });
+}}
+
+  >
+    <div className="stall-name">{stall.name}</div>
+    {/* Remove price inside stall */}
+    {/* <div className="stall-price">₱{stall.price}</div> */}
+  </div>
+))}
+
           </div>
 
           {/* Price input modal */}

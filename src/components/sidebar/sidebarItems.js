@@ -101,7 +101,7 @@ const sidebarItems = [
       {
         id: "submodule5",
         label: "Market Stall Rent Management",
-        path: "/Market/Market2"
+        path: "/Market2/Market2"
       },
      
     ]

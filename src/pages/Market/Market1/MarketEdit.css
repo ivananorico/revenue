@@ -422,3 +422,61 @@
     padding: 12px;
   }
 }
+
+/* Add to MarketEdit.css */
+.stall-buttons {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  gap: 2px;
+}
+
+.btn-maintenance {
+  background: #ffa500;
+  border: none;
+  border-radius: 3px;
+  width: 16px;
+  height: 16px;
+  font-size: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.btn-maintenance:hover {
+  background: #ff8c00;
+  transform: scale(1.1);
+}
+
+.btn-maintenance.active {
+  background: #ff6b35;
+  box-shadow: 0 0 5px rgba(255, 107, 53, 0.8);
+}
+
+.btn-delete-stall {
+  background: #ff4444;
+  border: none;
+  border-radius: 3px;
+  width: 16px;
+  height: 16px;
+  font-size: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: white;
+}
+
+.btn-delete-stall:hover {
+  background: #cc0000;
+  transform: scale(1.1);
+}
+
+.stall.maintenance {
+  background: linear-gradient(135deg, #ffa500 0%, #ffd700 100%);
+  border: 2px dashed #ff6b35;
+}

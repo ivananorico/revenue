@@ -40,22 +40,32 @@ try {
 
     $pdo->beginTransaction();
 
-    // delete existing stalls for this map
+    // Delete existing stalls for this map
     $pdo->prepare("DELETE FROM stalls WHERE map_id = ?")->execute([$mapId]);
 
-    // insert stalls with price
-    $insert = $pdo->prepare(
-        "INSERT INTO stalls (map_id, name, pos_x, pos_y, status, price) VALUES (?, ?, ?, ?, ?, ?)"
-    );
+    // Insert stalls (includes maintenance status)
+    $insert = $pdo->prepare("
+        INSERT INTO stalls (map_id, name, pos_x, pos_y, status, price, height, length, width)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
 
     foreach ($stalls as $s) {
         $name = isset($s['name']) ? trim($s['name']) : 'Stall';
         $x = isset($s['pos_x']) ? (int)$s['pos_x'] : 0;
         $y = isset($s['pos_y']) ? (int)$s['pos_y'] : 0;
-        $status = (isset($s['status']) && in_array($s['status'], ['available','reserved','occupied'])) ? $s['status'] : 'available';
-        $price = isset($s['price']) ? (float)$s['price'] : 0.0;
 
-        $insert->execute([$mapId, $name, $x, $y, $status, $price]);
+        // ✅ Add support for maintenance
+        $statusList = ['available', 'reserved', 'occupied', 'maintenance'];
+        $status = (isset($s['status']) && in_array($s['status'], $statusList))
+            ? $s['status']
+            : 'available';
+
+        $price = isset($s['price']) ? (float)$s['price'] : 0.0;
+        $height = isset($s['height']) ? (float)$s['height'] : 0.0;
+        $length = isset($s['length']) ? (float)$s['length'] : 0.0;
+        $width = isset($s['width']) ? (float)$s['width'] : 0.0;
+
+        $insert->execute([$mapId, $name, $x, $y, $status, $price, $height, $length, $width]);
     }
 
     $pdo->commit();

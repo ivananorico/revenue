@@ -19,7 +19,7 @@ export default function RenterDetails() {
         const renterData = await resRenter.json();
         if (renterData.length > 0) {
           setRenter(renterData[0]);
-          setFormData(renterData[0]); // initialize form data
+          setFormData(renterData[0]);
         }
 
         // Fetch monthly rent
@@ -40,7 +40,6 @@ export default function RenterDetails() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: renter.id }),
       });
-
       setRenter({ ...renter, status: "active", stall_status: "occupied" });
     } catch (err) {
       console.error("Error approving renter:", err);
@@ -73,14 +72,14 @@ export default function RenterDetails() {
 
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
-      case 'pending':
-        return 'status-pending';
-      case 'paid':
-        return 'status-paid';
-      case 'overdue':
-        return 'status-overdue';
+      case "pending":
+        return "status-pending";
+      case "paid":
+        return "status-paid";
+      case "overdue":
+        return "status-overdue";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -89,7 +88,7 @@ export default function RenterDetails() {
   return (
     <div className="renter-details-container">
       <h1>Renter Details</h1>
-      
+
       <div className="renter-info-section">
         <table className="renter-info-table">
           <tbody>
@@ -103,7 +102,7 @@ export default function RenterDetails() {
                 {isEditing ? (
                   <input
                     name="renter_ref"
-                    value={formData.renter_ref || ''}
+                    value={formData.renter_ref || ""}
                     onChange={handleInputChange}
                   />
                 ) : (
@@ -117,7 +116,7 @@ export default function RenterDetails() {
                 {isEditing ? (
                   <input
                     name="full_name"
-                    value={formData.full_name || ''}
+                    value={formData.full_name || ""}
                     onChange={handleInputChange}
                   />
                 ) : (
@@ -131,7 +130,7 @@ export default function RenterDetails() {
                 {isEditing ? (
                   <input
                     name="contact_number"
-                    value={formData.contact_number || ''}
+                    value={formData.contact_number || ""}
                     onChange={handleInputChange}
                   />
                 ) : (
@@ -143,10 +142,10 @@ export default function RenterDetails() {
               <td>Email</td>
               <td>
                 {isEditing ? (
-                  <input 
-                    name="email" 
-                    value={formData.email || ''} 
-                    onChange={handleInputChange} 
+                  <input
+                    name="email"
+                    value={formData.email || ""}
+                    onChange={handleInputChange}
                   />
                 ) : (
                   renter.email
@@ -157,10 +156,10 @@ export default function RenterDetails() {
               <td>Address</td>
               <td>
                 {isEditing ? (
-                  <input 
-                    name="address" 
-                    value={formData.address || ''} 
-                    onChange={handleInputChange} 
+                  <input
+                    name="address"
+                    value={formData.address || ""}
+                    onChange={handleInputChange}
                   />
                 ) : (
                   renter.address
@@ -178,6 +177,24 @@ export default function RenterDetails() {
             <tr>
               <td>Stall Name</td>
               <td>{renter.stall_name}</td>
+            </tr>
+
+            {/* ✅ Added Stall Dimensions and Area */}
+            <tr>
+              <td>Stall Width</td>
+              <td>{renter.stall_width ? `${renter.stall_width} m` : "N/A"}</td>
+            </tr>
+            <tr>
+              <td>Stall Length</td>
+              <td>{renter.stall_length ? `${renter.stall_length} m` : "N/A"}</td>
+            </tr>
+            <tr>
+              <td>Stall Height</td>
+              <td>{renter.stall_height ? `${renter.stall_height} m` : "N/A"}</td>
+            </tr>
+            <tr>
+              <td>Stall Area</td>
+              <td>{renter.stall_area ? `${renter.stall_area} m²` : "N/A"}</td>
             </tr>
             <tr>
               <td>Stall Status</td>
@@ -233,9 +250,7 @@ export default function RenterDetails() {
                     <td>₱{m.penalty}</td>
                     <td>₱{m.total_due}</td>
                     <td>
-                      <span className={getStatusClass(m.status)}>
-                        {m.status}
-                      </span>
+                      <span className={getStatusClass(m.status)}>{m.status}</span>
                     </td>
                     <td>{m.payment_date || "-"}</td>
                     <td>{m.receipt_no || "-"}</td>

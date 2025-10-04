@@ -15,6 +15,7 @@ export default function Market1() {
   const [modalPos, setModalPos] = useState({ x: 0, y: 0 });
 
   const marketMapRef = useRef(null);
+  const modalRef = useRef(null);
   const navigate = useNavigate();
   const API_BASE = "http://localhost/revenue/backend/Market/Market1";
 
@@ -46,14 +47,26 @@ export default function Market1() {
   const addStall = () => {
     const newCount = stallCount + 1;
     setStallCount(newCount);
-    const newStall = { 
-      name: `Stall ${newCount}`, 
-      pos_x: 50, 
-      pos_y: 50, 
-      status: "available", 
-      price: 0 
+    const newStall = {
+      name: `Stall ${newCount}`,
+      pos_x: 50,
+      pos_y: 50,
+      status: "available",
+      price: 0,
+      height: 0,
+      length: 0,
+      width: 0,
     };
     setStalls([...stalls, newStall]);
+  };
+
+  // Delete stall
+  const deleteStall = (index) => {
+    if (window.confirm(`Are you sure you want to delete ${stalls[index].name}?`)) {
+      const updatedStalls = stalls.filter((_, i) => i !== index);
+      setStalls(updatedStalls);
+      setStallCount(updatedStalls.length);
+    }
   };
 
   // Save stalls
@@ -78,8 +91,8 @@ export default function Market1() {
   // Drag stalls
   const handleDrag = (e, index) => {
     const containerRect = marketMapRef.current.getBoundingClientRect();
-    const x = e.clientX - containerRect.left - 31.5; // Half of stall width (63px/2)
-    const y = e.clientY - containerRect.top - 29; // Half of stall height (58px/2)
+    const x = e.clientX - containerRect.left - 31.5;
+    const y = e.clientY - containerRect.top - 29;
 
     const updated = [...stalls];
     updated[index].pos_x = Math.max(0, Math.min(containerRect.width - 63, x));
@@ -98,29 +111,48 @@ export default function Market1() {
     document.addEventListener("mouseup", onMouseUp);
   };
 
-  // Open price modal near the stall
+  // Open modal with better positioning
   const openPriceModal = (index, e) => {
     e.preventDefault();
     const containerRect = marketMapRef.current.getBoundingClientRect();
     setSelectedStallIndex(index);
     setStallPrice(stalls[index].price);
 
-    // Position modal near cursor but inside the container
-    let x = e.clientX - containerRect.left;
-    let y = e.clientY - containerRect.top;
-    x = Math.min(containerRect.width - 150, x);
-    y = Math.min(containerRect.height - 100, y);
-    setModalPos({ x, y });
+    // Get click position relative to viewport
+    const viewportX = e.clientX;
+    const viewportY = e.clientY;
 
+    // Modal dimensions (approximate - you can adjust these)
+    const modalWidth = 300;
+    const modalHeight = 400;
+
+    // Calculate position to keep modal within viewport
+    let x = viewportX;
+    let y = viewportY;
+
+    // Check if modal would go beyond right edge of viewport
+    if (x + modalWidth > window.innerWidth) {
+      x = window.innerWidth - modalWidth - 10; // 10px padding from edge
+    }
+
+    // Check if modal would go beyond bottom edge of viewport
+    if (y + modalHeight > window.innerHeight) {
+      y = window.innerHeight - modalHeight - 10; // 10px padding from edge
+    }
+
+    // Ensure modal doesn't go off left or top edges
+    x = Math.max(10, x);
+    y = Math.max(10, y);
+
+    setModalPos({ x, y });
     setModalOpen(true);
   };
 
-  // Save price
-  const savePrice = () => {
-    const updated = [...stalls];
-    updated[selectedStallIndex].price = parseFloat(stallPrice) || 0;
-    setStalls(updated);
-    setModalOpen(false);
+  // Close modal when clicking outside
+  const handleBackdropClick = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      setModalOpen(false);
+    }
   };
 
   return (
@@ -128,7 +160,11 @@ export default function Market1() {
       <h1>{isFinished ? "Finished Market Map" : "Market Map Creator"}</h1>
 
       {!isFinished && (
-        <form onSubmit={handleUpload} encType="multipart/form-data" className="upload-form">
+        <form
+          onSubmit={handleUpload}
+          encType="multipart/form-data"
+          className="upload-form"
+        >
           <input type="text" name="mapName" placeholder="Map Name" required />
           <input type="file" name="mapImage" accept="image/*" required />
           <button type="submit">Upload Map</button>
@@ -154,35 +190,113 @@ export default function Market1() {
               <div className="stall-price">
                 {stall.price > 0 ? `₱${stall.price}` : ""}
               </div>
+              <div className="stall-size">
+                {stall.length}m × {stall.width}m × {stall.height}m
+              </div>
             </div>
+            
+            {/* Delete Button - appears on hover */}
+            {!isFinished && (
+              <button
+                className="delete-stall-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteStall(index);
+                }}
+                title="Delete stall"
+              >
+                ×
+              </button>
+            )}
           </div>
         ))}
+      </div>
 
-        {/* Price Modal */}
-        {modalOpen && (
+      {/* Modal Backdrop */}
+      {modalOpen && (
+        <div className="modal-backdrop" onClick={handleBackdropClick}>
+          {/* Stall Details Modal */}
           <div
+            ref={modalRef}
             className="price-modal"
-            style={{ left: modalPos.x, top: modalPos.y }}
+            style={{ 
+              left: `${modalPos.x}px`, 
+              top: `${modalPos.y}px`,
+              position: 'fixed'
+            }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <h4>Set Stall Price</h4>
+            <h4>Set Stall Details</h4>
+
+            <label>Price (₱)</label>
             <input
               type="number"
-              value={stallPrice}
-              onChange={(e) => setStallPrice(e.target.value)}
+              value={stalls[selectedStallIndex]?.price || 0}
+              onChange={(e) => {
+                const updated = [...stalls];
+                updated[selectedStallIndex].price =
+                  parseFloat(e.target.value) || 0;
+                setStalls(updated);
+                setStallPrice(e.target.value);
+              }}
               step="0.01"
             />
+
+            <label>Height (m)</label>
+            <input
+              type="number"
+              value={stalls[selectedStallIndex]?.height || 0}
+              onChange={(e) => {
+                const updated = [...stalls];
+                updated[selectedStallIndex].height =
+                  parseFloat(e.target.value) || 0;
+                setStalls(updated);
+              }}
+              step="0.01"
+            />
+
+            <label>Length (m)</label>
+            <input
+              type="number"
+              value={stalls[selectedStallIndex]?.length || 0}
+              onChange={(e) => {
+                const updated = [...stalls];
+                updated[selectedStallIndex].length =
+                  parseFloat(e.target.value) || 0;
+                setStalls(updated);
+              }}
+              step="0.01"
+            />
+
+            <label>Width (m)</label>
+            <input
+              type="number"
+              value={stalls[selectedStallIndex]?.width || 0}
+              onChange={(e) => {
+                const updated = [...stalls];
+                updated[selectedStallIndex].width =
+                  parseFloat(e.target.value) || 0;
+                setStalls(updated);
+              }}
+              step="0.01"
+            />
+
             <div className="modal-buttons">
-              <button onClick={savePrice}>Save</button>
+              <button onClick={() => setModalOpen(false)}>Save</button>
               <button onClick={() => setModalOpen(false)}>Cancel</button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {!isFinished && (
         <div className="controls">
-          <button onClick={addStall} disabled={!mapId}>Add Stall</button>
-          <button onClick={saveStalls} disabled={!mapId}>Save Stalls</button>
+          <button onClick={addStall} disabled={!mapId}>
+            Add Stall
+          </button>
+          <button onClick={saveStalls} disabled={!mapId}>
+            Save Stalls
+          </button>
           <button onClick={() => navigate("/Market1/edit")}>
             View All Maps
           </button>

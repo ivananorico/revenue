@@ -15,6 +15,9 @@ export default function MarketEdit() {
     y: 0,
     index: null,
     price: "",
+    height: "",
+    length: "",
+    width: "",
   });
 
   const marketMapRef = useRef(null);
@@ -72,16 +75,41 @@ export default function MarketEdit() {
 
   const addStall = () => {
     const newStall = {
+      id: null,
       name: `Stall ${stalls.length + 1}`,
       pos_x: 50,
       pos_y: 50,
       status: "available",
       price: "",
+      height: "",
+      length: "",
+      width: "",
     };
     setStalls([...stalls, newStall]);
   };
 
-  const deleteStall = (index) => {
+  const deleteStall = async (index) => {
+    const stallToDelete = stalls[index];
+    if (!window.confirm(`Delete ${stallToDelete.name}?`)) return;
+
+    if (stallToDelete.id) {
+      try {
+        const res = await fetch(`${API_BASE}/delete_stall.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stall_id: stallToDelete.id }),
+        });
+        const data = await res.json();
+        if (data.status !== "success") {
+          alert("Failed to delete stall from DB: " + (data.message || "Unknown"));
+          return;
+        }
+      } catch (err) {
+        alert("Error deleting stall: " + err.message);
+        return;
+      }
+    }
+
     const updated = [...stalls];
     updated.splice(index, 1);
     setStalls(updated);
@@ -89,8 +117,8 @@ export default function MarketEdit() {
 
   const handleDrag = (e, index) => {
     const containerRect = marketMapRef.current.getBoundingClientRect();
-    const x = e.clientX - containerRect.left - 31.5; // Half of stall width
-    const y = e.clientY - containerRect.top - 29; // Half of stall height
+    const x = e.clientX - containerRect.left - 31.5;
+    const y = e.clientY - containerRect.top - 29;
 
     const updated = [...stalls];
     updated[index].pos_x = Math.max(0, Math.min(containerRect.width - 63, x));
@@ -109,10 +137,19 @@ export default function MarketEdit() {
     document.addEventListener("mouseup", onMouseUp);
   };
 
-  const toggleStatus = (index) => {
+  const toggleMaintenance = (index) => {
     const updated = [...stalls];
-    updated[index].status =
-      updated[index].status === "available" ? "occupied" : "available";
+    const currentStall = updated[index];
+    
+    if (currentStall.status === "maintenance") {
+      // If currently in maintenance, change back to available
+      currentStall.status = "available";
+    } else {
+      // If not in maintenance, set to maintenance
+      currentStall.status = "maintenance";
+      alert(`${currentStall.name} is now under maintenance.`);
+    }
+    
     setStalls(updated);
   };
 
@@ -166,18 +203,8 @@ export default function MarketEdit() {
                     <td>{map.id}</td>
                     <td>{map.name}</td>
                     <td>
-                      <button 
-                        className="btn-view" 
-                        onClick={() => handleView(map.id)}
-                      >
-                        View
-                      </button>
-                      <button 
-                        className="btn-delete" 
-                        onClick={() => handleDeleteMap(map.id)}
-                      >
-                        Delete
-                      </button>
+                      <button className="btn-view" onClick={() => handleView(map.id)}>View</button>
+                      <button className="btn-delete" onClick={() => handleDeleteMap(map.id)}>Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -201,50 +228,74 @@ export default function MarketEdit() {
             }}
           >
             {stalls.map((stall, index) => (
-  <div
-    key={index}
-    className={`stall ${stall.status}`}
-    style={{
-      left: stall.pos_x,
-      top: stall.pos_y,
-    }}
-    onMouseDown={(e) => handleMouseDown(e, index)}
-    onContextMenu={(e) => {
-  e.preventDefault();
+              <div
+                key={index}
+                className={`stall ${stall.status}`}
+                style={{
+                  left: stall.pos_x,
+                  top: stall.pos_y,
+                }}
+                onMouseDown={(e) => handleMouseDown(e, index)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  const marketRect = marketMapRef.current.getBoundingClientRect();
+                  const stallWidth = 63;
+                  const stallHeight = 58;
+                  let x = marketRect.left + stall.pos_x + stallWidth + 5;
+                  let y = marketRect.top + stall.pos_y;
+                  const modalWidth = 300;
+                  const modalHeight = 350;
+                  x = Math.min(window.innerWidth - modalWidth, x);
+                  y = Math.min(window.innerHeight - modalHeight, y);
 
-  const marketRect = marketMapRef.current.getBoundingClientRect();
-  const stallWidth = 63; // same as your CSS
-  const stallHeight = 58;
+                  setPriceModal({
+                    visible: true,
+                    x,
+                    y,
+                    index,
+                    price: stall.price || "",
+                    height: stall.height || "",
+                    length: stall.length || "",
+                    width: stall.width || "",
+                  });
+                }}
+              >
+                <div className="stall-info">
+                  <div className="stall-name">{stall.name}</div>
+                  <div className="stall-price">{stall.price ? `₱${stall.price}` : ""}</div>
+                  <div className="stall-dimensions">
+                    {stall.length && stall.width && `${stall.length}m × ${stall.width}m`}
+                    {stall.height && ` × ${stall.height}m`}
+                  </div>
+                </div>
 
-  // Calculate position relative to the viewport
-  let x = marketRect.left + stall.pos_x + stallWidth + 5; // 5px gap to the right
-  let y = marketRect.top + stall.pos_y; // top aligned with stall
-
-  // Optional: make sure modal doesn't go outside viewport
-  const modalWidth = 150;
-  const modalHeight = 80;
-  x = Math.min(window.innerWidth - modalWidth, x);
-  y = Math.min(window.innerHeight - modalHeight, y);
-
-  setPriceModal({
-    visible: true,
-    x,
-    y,
-    index,
-    price: stall.price || "",
-  });
-}}
-
-  >
-    <div className="stall-name">{stall.name}</div>
-    {/* Remove price inside stall */}
-    {/* <div className="stall-price">₱{stall.price}</div> */}
-  </div>
-))}
-
+                <div className="stall-buttons">
+                  <button
+                    className={`btn-maintenance ${stall.status === "maintenance" ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleMaintenance(index);
+                    }}
+                    title={stall.status === "maintenance" ? "Remove from maintenance" : "Set to maintenance"}
+                  >
+                    🔧
+                  </button>
+                  <button
+                    className="btn-delete-stall"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteStall(index);
+                    }}
+                    title="Delete stall"
+                  >
+                    ✖
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Price input modal */}
+          {/* Stall details modal */}
           {priceModal.visible && (
             <div
               className="price-modal"
@@ -254,22 +305,65 @@ export default function MarketEdit() {
                 left: priceModal.x,
               }}
             >
-              <label>
-                Price:
+              <h4>Stall Details</h4>
+
+              <div className="form-group">
+                <label>Price (₱):</label>
                 <input
                   type="number"
                   value={priceModal.price}
                   onChange={(e) =>
                     setPriceModal({ ...priceModal, price: e.target.value })
                   }
+                  step="0.01"
                 />
-              </label>
+              </div>
+
+              <div className="form-group">
+                <label>Height (m):</label>
+                <input
+                  type="number"
+                  value={priceModal.height}
+                  onChange={(e) =>
+                    setPriceModal({ ...priceModal, height: e.target.value })
+                  }
+                  step="0.01"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Length (m):</label>
+                <input
+                  type="number"
+                  value={priceModal.length}
+                  onChange={(e) =>
+                    setPriceModal({ ...priceModal, length: e.target.value })
+                  }
+                  step="0.01"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Width (m):</label>
+                <input
+                  type="number"
+                  value={priceModal.width}
+                  onChange={(e) =>
+                    setPriceModal({ ...priceModal, width: e.target.value })
+                  }
+                  step="0.01"
+                />
+              </div>
+
               <div className="price-modal-buttons">
                 <button
                   className="btn-save"
                   onClick={() => {
                     const updated = [...stalls];
                     updated[priceModal.index].price = priceModal.price;
+                    updated[priceModal.index].height = priceModal.height;
+                    updated[priceModal.index].length = priceModal.length;
+                    updated[priceModal.index].width = priceModal.width;
                     setStalls(updated);
                     setPriceModal({ ...priceModal, visible: false });
                   }}
@@ -278,9 +372,7 @@ export default function MarketEdit() {
                 </button>
                 <button
                   className="btn-cancel"
-                  onClick={() =>
-                    setPriceModal({ ...priceModal, visible: false })
-                  }
+                  onClick={() => setPriceModal({ ...priceModal, visible: false })}
                 >
                   Cancel
                 </button>

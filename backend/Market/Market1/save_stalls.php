@@ -1,6 +1,7 @@
 <?php
+header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Accept");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -8,74 +9,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-header('Content-Type: application/json; charset=utf-8');
-
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/error.log');
+require_once "db_market.php";
 
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception('Only POST allowed');
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception("Only POST allowed");
+    if (!isset($_POST['mapName']) || !isset($_FILES['mapImage']) || !isset($_POST['stalls'])) {
+        throw new Exception("mapName, mapImage, and stalls are required");
     }
 
-    $body = file_get_contents('php://input');
-    $payload = json_decode($body, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Exception('Invalid JSON: ' . json_last_error_msg());
-    }
+    $mapName = trim($_POST['mapName']);
+    $stalls = json_decode($_POST['stalls'], true);
+    if ($stalls === null) throw new Exception("Invalid stalls JSON");
 
-    if (empty($payload['map_id']) || !isset($payload['stalls']) || !is_array($payload['stalls'])) {
-        throw new Exception('Missing map_id or stalls');
-    }
+    $file = $_FILES['mapImage'];
+    if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception("Upload error code: " . $file['error']);
 
-    require_once __DIR__ . '/db_market.php';
-    if (!isset($pdo) || !$pdo) {
-        throw new Exception('DB connection not available (check db_market)');
-    }
+    $allowed = ['jpg','jpeg','png','gif','webp'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowed)) throw new Exception("Invalid file type");
 
-    $mapId = (int)$payload['map_id'];
-    $stalls = $payload['stalls'];
+    $uploadsDir = __DIR__ . '/../../../uploads';
+    if (!is_dir($uploadsDir)) mkdir($uploadsDir, 0755, true);
 
-    $pdo->beginTransaction();
+    $filename = 'map_' . time() . '_' . bin2hex(random_bytes(5)) . '.' . $ext;
+    $target = $uploadsDir . '/' . $filename;
 
-    // Insert new stalls or update existing stalls
-    $stmt = $pdo->prepare("
-        INSERT INTO stalls (id, map_id, name, pos_x, pos_y, status, price, height, length, width)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            name = VALUES(name),
-            pos_x = VALUES(pos_x),
-            pos_y = VALUES(pos_y),
-            status = VALUES(status),
-            price = VALUES(price),
-            height = VALUES(height),
-            length = VALUES(length),
-            width = VALUES(width)
+    if (!move_uploaded_file($file['tmp_name'], $target)) throw new Exception("Failed to move uploaded file");
+
+    $imagePath = 'uploads/' . $filename;
+
+    // Insert map
+    $stmt = $pdo->prepare("INSERT INTO maps (name, image_path) VALUES (?, ?)");
+    $stmt->execute([$mapName, $imagePath]);
+    $mapId = $pdo->lastInsertId();
+
+    // Insert stalls
+    $stmtStall = $pdo->prepare("
+        INSERT INTO stalls (map_id, name, pos_x, pos_y, status, price, height, length, width)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
-    foreach ($stalls as $s) {
-        $stallId = isset($s['id']) ? (int)$s['id'] : 0; // 0 = new stall
-        $name = isset($s['name']) ? trim($s['name']) : 'Stall';
-        $x = isset($s['pos_x']) ? (int)$s['pos_x'] : 0;
-        $y = isset($s['pos_y']) ? (int)$s['pos_y'] : 0;
-        $statusList = ['available','reserved','occupied','maintenance'];
-        $status = (isset($s['status']) && in_array($s['status'], $statusList)) ? $s['status'] : 'available';
-        $price = isset($s['price']) ? (float)$s['price'] : 0.0;
-        $height = isset($s['height']) ? (float)$s['height'] : 0.0;
-        $length = isset($s['length']) ? (float)$s['length'] : 0.0;
-        $width = isset($s['width']) ? (float)$s['width'] : 0.0;
-
-        $stmt->execute([$stallId, $mapId, $name, $x, $y, $status, $price, $height, $length, $width]);
+    foreach ($stalls as $stall) {
+        $stmtStall->execute([
+            $mapId,
+            $stall['name'],
+            $stall['pos_x'],
+            $stall['pos_y'],
+            $stall['status'],
+            $stall['price'],
+            $stall['height'],
+            $stall['length'],
+            $stall['width']
+        ]);
     }
 
-    $pdo->commit();
-    echo json_encode(['status' => 'success']);
+    echo json_encode(['status' => 'success', 'map_id' => (int)$mapId, 'image_path' => $imagePath]);
+
 } catch (Exception $e) {
-    if (isset($pdo) && $pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-    error_log("save_stalls.php error: " . $e->getMessage());
-    http_response_code(500);
+    http_response_code(400);
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }

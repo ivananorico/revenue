@@ -12,22 +12,31 @@ $full_name = $_SESSION['full_name'] ?? 'Guest';
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Apply Stall</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Stall - Municipal Services</title>
     <link rel="stylesheet" href="apply_stall.css">
+    <link rel="stylesheet" href="../navbar.css">
 </head>
 <body>
+
+    <!-- Include Navbar -->
+    <?php include '../navbar.php'; ?>
+
     <div class="container">
-        <h2>Market Stall Rental</h2>
-        <p>Welcome, <?= htmlspecialchars($full_name) ?>!</p>
-        <p>Click the button below to apply for a stall.</p>
+        <div class="content">
+            <h2>Market Stall Rental</h2>
+            <p>Click the button below to apply for a stall.</p>
 
-        <!-- Pass full_name and email via GET if needed (optional) -->
-        <a href="../../market_portal/market_portal.php" class="button">Apply Stall</a>
+            <!-- Apply Stall Button -->
+            <a href="../../market_portal/market_portal.php" class="button">Apply Stall</a>
 
-        <br><br>
-        <a href="dashboard.php">Back to Dashboard</a>
+            <div class="back-link">
+                <a href="../../citizen_portal/dashboard.php">← Back to Dashboard</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -2,11 +2,7 @@
 session_start();
 require_once "db_market.php";
 
-// Example: You should already have a login system that sets these
-// $_SESSION['user_id'], $_SESSION['full_name'], $_SESSION['email']
-
 if (!isset($_SESSION['user_id'])) {
-    // Redirect to login or show message
     die("Please log in to access the market portal.");
 }
 
@@ -49,13 +45,16 @@ if ($map_id) {
 <meta charset="UTF-8">
 <title>Market Portal</title>
 <link rel="stylesheet" href="portal.css">
+<link rel="stylesheet" href="../citizen_portal/navbar.css">
 </head>
 <body>
-
+<?php include '../citizen_portal/navbar.php'; ?>
 <div class="header">
-    <h1>Market Portal</h1>
-    <div class="user-info">
-        Logged in as: <strong><?= htmlspecialchars($user_name) ?></strong> (<?= htmlspecialchars($user_email) ?>, ID: <?= $user_id ?>)
+    <div class="header-left">
+        <h1>Market Portal</h1>
+        <a href="http://localhost/revenue/citizen_portal/market-card/apply_stall.php" class="back-button">
+            ← Back to Apply Stall
+        </a>
     </div>
     <form method="GET" class="map-selector">
         <label for="mapSelect">Select Market Map:</label>

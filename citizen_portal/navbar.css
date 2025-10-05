@@ -1,0 +1,205 @@
+/* CSS Variables for consistent theming */
+:root {
+    --primary-color: #004aad;
+    --primary-dark: #00388a;
+    --primary-light: #3a6fc8;
+    --accent-color: #ff4d4f;
+    --accent-hover: #e33b3b;
+    --text-light: #ffffff;
+    --text-gray: #f0f0f0;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+    --border-radius: 8px;
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navbar Styles */
+.navbar {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--text-light);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    width: 100%; /* Full width */
+}
+
+/* Brand and User Info - Push to left edge */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--text-light);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: var(--transition);
+}
+
+.user-avatar:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.user-greeting {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--text-light);
+}
+
+/* Navbar Menu - Push to right edge */
+.navbar-menu {
+    display: flex;
+    align-items: center;
+}
+
+/* Logout Button */
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-light);
+    background-color: var(--accent-color);
+    padding: 10px 18px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logout-btn:active {
+    transform: translateY(0);
+}
+
+.logout-icon {
+    transition: var(--transition);
+}
+
+.logout-btn:hover .logout-icon {
+    transform: translateX(2px);
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 10px 16px;
+    }
+    
+    .user-greeting {
+        font-size: 1.2rem;
+    }
+    
+    .user-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+    
+    .logout-btn {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-container {
+        padding: 8px 12px;
+    }
+    
+    .user-info {
+        gap: 8px;
+    }
+    
+    .user-greeting {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .navbar-container {
+        padding: 6px 10px;
+    }
+    
+    .user-greeting {
+        font-size: 1rem;
+    }
+    
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+    
+    .logout-btn {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+    
+    /* Hide "Logout" text on very small screens, show only icon */
+    .logout-btn span {
+        display: none;
+    }
+    
+    .logout-btn {
+        padding: 8px 10px; /* Adjust padding for icon-only button */
+    }
+}
+
+/* Animation for page load */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar {
+    animation: fadeInDown 0.5s ease-out;
+}

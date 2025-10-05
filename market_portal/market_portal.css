@@ -1,285 +1,532 @@
+/* CSS Variables */
+:root {
+    --primary-blue: #004aad;
+    --primary-orange: #ff6b35;
+    --orange-light: #ff8e53;
+    --orange-dark: #e55a2b;
+    --gray-light: #f8f9fa;
+    --gray-medium: #6c757d;
+    --gray-dark: #5a6268;
+    --white: #ffffff;
+    --text-dark: #333333;
+    --text-light: #888888;
+    --border-color: #e0e0e0;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-heavy: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
 
-        .header {
-            background: #004aad;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+/* Header Styles */
+.header {
+    background: var(--primary-blue);
+    color: var(--white);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    flex-wrap: wrap;
+    gap: 15px;
+}
 
-        .map-selector select {
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 2px solid #e0e0e0;
-            font-size: 14px;
-        }
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-        .map-selector select:focus {
-            outline: none;
-            border-color: #ff6b35;
-        }
+.header-left h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
 
-        .main-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 20px;
-        }
+/* Back Button */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
 
-        .map-container {
-            flex: 2;
-            text-align: center;
-        }
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
 
-        .map-container h2 {
-            color: #ff6b35;
-            margin-bottom: 20px;
-            font-size: 2rem;
-        }
+/* Map Selector */
+.map-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        .market-map {
-            width: 800px;
-            height: 600px;
-            margin: 20px auto;
-            position: relative;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-color: #f8f9fa;
-            border: 3px solid #ff6b35;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+.map-selector label {
+    font-weight: 500;
+    color: var(--white);
+    white-space: nowrap;
+    font-size: 14px;
+}
 
-        .stall {
-            width: 63px;
-            height: 58px;
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8e53 100%);
-            border: 2px solid white;
-            color: white;
-            font-weight: bold;
-            position: absolute;
-            cursor: pointer;
-            user-select: none;
-            font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 6px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s;
-        }
+.map-selector select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 2px solid var(--border-color);
+    font-size: 14px;
+    background: var(--white);
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: var(--transition);
+}
 
-        .stall:hover {
-            transform: scale(1.1);
-        }
+.map-selector select:focus {
+    outline: none;
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
 
-        .stall.selected {
-            outline: 3px solid #004aad;
-            transform: scale(1.1);
-        }
+/* Main Container */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+}
 
-        .stall-content {
-            text-align: center;
-            line-height: 1.2;
-        }
+.content-wrapper {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
 
-        .stall-name {
-            font-size: 10px;
-            font-weight: 600;
-            margin-bottom: 2px;
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-        }
+/* Map Container */
+.map-container {
+    flex: 2;
+    text-align: center;
+}
 
-        .stall-price {
-            font-size: 9px;
-            font-weight: 500;
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-        }
+.map-container h2 {
+    color: var(--primary-orange);
+    margin-bottom: 20px;
+    font-size: 2rem;
+    font-weight: 600;
+}
 
-        .stall.available {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8e53 100%);
-            border: 2px solid white;
-        }
+/* Market Map */
+.market-map {
+    width: 800px;
+    height: 600px;
+    margin: 20px auto;
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: var(--gray-light);
+    border: 3px solid var(--primary-orange);
+    border-radius: 8px;
+    box-shadow: var(--shadow-heavy);
+    overflow: hidden;
+}
 
-        .stall.reserved {
-            background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
-            border: 2px solid white;
-        }
+/* Stall Styles */
+.stall {
+    width: 63px;
+    height: 58px;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--orange-light) 100%);
+    border: 2px solid var(--white);
+    color: var(--white);
+    font-weight: bold;
+    position: absolute;
+    cursor: pointer;
+    user-select: none;
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
 
-        .stall.occupied {
-            background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
-            border: 2px solid white;
-        }
+.stall:hover {
+    transform: scale(1.1);
+}
 
-        .stall.maintenance {
-            background: linear-gradient(135deg, #6c757d 0%, #8d99a6 100%);
-            border: 2px solid white;
-        }
+.stall.selected {
+    outline: 3px solid var(--primary-blue);
+    transform: scale(1.1);
+}
 
-        .form-container {
-            flex: 1;
-        }
+.stall-content {
+    text-align: center;
+    line-height: 1.2;
+    width: 100%;
+    padding: 4px;
+}
 
-        .reservation-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            border: 2px solid #e0e0e0;
-        }
+.stall-name {
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
 
-        .reservation-card h3 {
-            color: #ff6b35;
-            margin-top: 0;
-            text-align: center;
-            border-bottom: 2px solid #ff6b35;
-            padding-bottom: 10px;
-        }
+.stall-price {
+    font-size: 9px;
+    font-weight: 500;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
 
-        .form-placeholder {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-        }
+/* Stall Status Colors */
+.stall.available {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--orange-light) 100%);
+    border: 2px solid var(--white);
+}
 
-        .form-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+.stall.reserved {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    border: 2px solid var(--white);
+}
 
-        .form-group {
-            flex: 1;
-            min-width: 45%;
-            text-align: left;
-        }
+.stall.occupied {
+    background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+    border: 2px solid var(--white);
+}
 
-        .form-group.full-width {
-            flex-basis: 100%;
-        }
+.stall.maintenance {
+    background: linear-gradient(135deg, var(--gray-medium) 0%, #8d99a6 100%);
+    border: 2px solid var(--white);
+}
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #333;
-        }
+.maintenance-badge {
+    font-size: 0.7rem;
+    margin-top: 2px;
+    opacity: 0.9;
+}
 
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
+/* Form Container */
+.form-container {
+    flex: 1;
+    min-width: 400px;
+}
 
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-        }
+.reservation-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border: 2px solid var(--border-color);
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
 
-        .form-actions {
-            text-align: center;
-            margin-top: 15px;
-        }
+.reservation-card h3 {
+    color: var(--primary-orange);
+    margin-top: 0;
+    text-align: center;
+    border-bottom: 2px solid var(--primary-orange);
+    padding-bottom: 10px;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
 
-        .btn {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8e53 100%);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
+/* Form Placeholder */
+.form-placeholder {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+}
 
-        .btn:hover {
-            background: linear-gradient(135deg, #e55a2b 0%, #e57a3b 100%);
-            transform: translateY(-1px);
-        }
+.placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
 
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #8d99a6 100%);
-        }
+.placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.7;
+}
 
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, #5a6268 0%, #7d8b9a 100%);
-        }
+.placeholder-content p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
 
-        /* Responsive Design */
-        @media (max-width: 868px) {
-            .main-container {
-                flex-direction: column;
-            }
-            
-            .market-map {
-                width: 95%;
-                height: 500px;
-            }
-        }
+/* Selected Stall Info */
+.selected-stall-info {
+    background: var(--gray-light);
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
 
-        @media (max-width: 480px) {
-            .header {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .main-container {
-                padding: 10px;
-            }
-            
-            .market-map {
-                height: 400px;
-            }
-            
-            .form-group {
-                min-width: 100%;
-            }
-        }
+.selected-stall-info h4 {
+    margin: 0 0 10px 0;
+    color: var(--primary-blue);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
 
-        /* Additional styles for the placeholder */
-        .placeholder-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
+.selected-stall-info p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: var(--text-dark);
+}
 
-        .placeholder-icon {
-            font-size: 2rem;
-        }
+/* Form Styles */
+.form-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
 
-        .selected-stall-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            border: 1px solid #e0e0e0;
-        }
+.form-group {
+    flex: 1;
+    min-width: 45%;
+    text-align: left;
+}
 
-        .selected-stall-info h4 {
-            margin: 0 0 10px 0;
-            color: #004aad;
-        }
+.form-group.full-width {
+    flex-basis: 100%;
+}
 
-        .selected-stall-info p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Form Actions */
+.form-actions {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--orange-light) 100%);
+    color: var(--white);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: var(--transition);
+    flex: 1;
+}
+
+.btn:hover {
+    background: linear-gradient(135deg, var(--orange-dark) 0%, var(--orange-light) 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--gray-medium) 0%, #8d99a6 100%);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, var(--gray-dark) 0%, #7d8b9a 100%);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .market-map {
+        width: 95%;
+        max-width: 800px;
+    }
+}
+
+@media (max-width: 868px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .header-left {
+        align-items: center;
+    }
+    
+    .map-selector {
+        justify-content: center;
+    }
+    
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .content-wrapper {
+        flex-direction: column;
+    }
+    
+    .market-map {
+        width: 100%;
+        height: 500px;
+    }
+    
+    .form-container {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 15px;
+    }
+    
+    .market-map {
+        height: 450px;
+    }
+    
+    .reservation-card {
+        padding: 15px;
+    }
+    
+    .form-grid {
+        gap: 12px;
+    }
+    
+    .form-group {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 12px;
+    }
+    
+    .header-left h1 {
+        font-size: 1.5rem;
+    }
+    
+    .back-button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .map-selector {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .map-selector select {
+        width: 100%;
+    }
+    
+    .main-container {
+        padding: 10px;
+        gap: 15px;
+    }
+    
+    .market-map {
+        height: 400px;
+        margin: 10px auto;
+    }
+    
+    .map-container h2 {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+    }
+    
+    .reservation-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+    }
+    
+    .form-placeholder {
+        padding: 30px 15px;
+    }
+    
+    .placeholder-icon {
+        font-size: 2.5rem;
+    }
+}
+
+/* Animation for form transition */
+#renterForm {
+    transition: opacity 0.3s ease;
+}
+
+/* Loading state for buttons */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Print Styles */
+@media print {
+    .header,
+    .form-container,
+    .back-button {
+        display: none;
+    }
+    
+    .market-map {
+        border: 2px solid #000;
+        box-shadow: none;
+    }
+}

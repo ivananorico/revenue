@@ -227,10 +227,6 @@ export default function RenterDetails() {
               <td>{renter.stall_height ? `${renter.stall_height} m` : "N/A"}</td>
             </tr>
             <tr>
-              <td>Stall Area</td>
-              <td>{renter.stall_area ? `${renter.stall_area} m²` : "N/A"}</td>
-            </tr>
-            <tr>
               <td>Stall Status</td>
               <td>{renter.stall_status}</td>
             </tr>

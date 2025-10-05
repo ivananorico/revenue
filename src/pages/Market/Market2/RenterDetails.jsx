@@ -10,35 +10,72 @@ export default function RenterDetails() {
   const [monthlyRent, setMonthlyRent] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
+        setError(null);
+        
         // Fetch renter info
         const resRenter = await fetch(`${API_BASE}/get_renter_details.php?id=${id}`);
+        if (!resRenter.ok) throw new Error("Failed to fetch renter details");
+        
         const renterData = await resRenter.json();
-        if (renterData.length > 0) {
-          setRenter(renterData[0]);
-          setFormData(renterData[0]);
+        console.log("Renter API Response:", renterData); // Debug log
+        
+        // Check if we have an error or no data
+        if (renterData.error) {
+          setError(renterData.error);
+        } else if (Object.keys(renterData).length > 0 && !renterData.error) {
+          setRenter(renterData);
+          setFormData(renterData);
+        } else {
+          setError("No renter details found");
         }
 
         // Fetch monthly rent
         const resMonthly = await fetch(`${API_BASE}/get_monthly_rent.php?id=${id}`);
-        const monthlyData = await resMonthly.json();
-        setMonthlyRent(monthlyData);
+        if (resMonthly.ok) {
+          const monthlyData = await resMonthly.json();
+          setMonthlyRent(monthlyData);
+        }
       } catch (err) {
         console.error("Error fetching data:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchData();
+    
+    if (id) {
+      fetchData();
+    }
   }, [id]);
 
+  // Add loading state
+  if (loading) {
+    return <div className="loading">Loading renter details...</div>;
+  }
+
+  // Add error state
+  if (error) {
+    return <div className="error">Error: {error}</div>;
+  }
+
+  if (!renter) {
+    return <div className="no-data">No renter details found.</div>;
+  }
+
+  // Rest of your component remains the same...
   const handleApprove = async () => {
     try {
       await fetch(`${API_BASE}/approve_renter.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: renter.id }),
+        body: JSON.stringify({ user_id: renter.user_id }),
       });
       setRenter({ ...renter, status: "active", stall_status: "occupied" });
     } catch (err) {
@@ -53,10 +90,11 @@ export default function RenterDetails() {
 
   const handleSave = async () => {
     try {
+      const payload = { ...formData, user_id: renter.user_id };
       const res = await fetch(`${API_BASE}/update_renter.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) {
@@ -76,14 +114,12 @@ export default function RenterDetails() {
         return "status-pending";
       case "paid":
         return "status-paid";
-      case "overdue":
+      case "unpaid":
         return "status-overdue";
       default:
         return "";
     }
   };
-
-  if (!renter) return <div className="no-data">No renter details found.</div>;
 
   return (
     <div className="renter-details-container">
@@ -94,7 +130,7 @@ export default function RenterDetails() {
           <tbody>
             <tr>
               <td>ID</td>
-              <td>{renter.id}</td>
+              <td>{renter.user_id}</td>
             </tr>
             <tr>
               <td>Reference</td>
@@ -178,8 +214,6 @@ export default function RenterDetails() {
               <td>Stall Name</td>
               <td>{renter.stall_name}</td>
             </tr>
-
-            {/* ✅ Added Stall Dimensions and Area */}
             <tr>
               <td>Stall Width</td>
               <td>{renter.stall_width ? `${renter.stall_width} m` : "N/A"}</td>

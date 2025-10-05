@@ -9,6 +9,7 @@ export default function MarketEdit() {
   const [search, setSearch] = useState("");
   const [currentMap, setCurrentMap] = useState(null);
   const [stalls, setStalls] = useState([]);
+  const [imageError, setImageError] = useState(false);
   const [priceModal, setPriceModal] = useState({
     visible: false,
     x: 0,
@@ -21,6 +22,7 @@ export default function MarketEdit() {
   });
 
   const marketMapRef = useRef(null);
+  const imageRef = useRef(null);
 
   useEffect(() => {
     fetchMaps();
@@ -58,19 +60,26 @@ export default function MarketEdit() {
 
   const handleView = async (mapId) => {
     try {
-      const res = await fetch(`${API_BASE}/get_map.php?map_id=${mapId}`);
+      setImageError(false);
+      const res = await fetch(`${API_BASE}/update_stalls.php?map_id=${mapId}`);
       const data = await res.json();
+      
       if (data.status === "success") {
-        let imgPath = data.map.image_path;
-        if (!imgPath.startsWith("http")) {
-          imgPath = `http://localhost/revenue/${imgPath.replace(/^\/+/, "")}`;
-        }
-        setCurrentMap({ ...data.map, image_path: imgPath });
-        setStalls(data.map.stalls);
-      } else alert("Failed to load map: " + (data.message || "Unknown"));
+        console.log("Map data received:", data.map);
+        console.log("Image path:", data.map.image_path);
+        setCurrentMap(data.map);
+        setStalls(data.stalls || []);
+      } else {
+        alert("Failed to load map: " + (data.message || "Unknown"));
+      }
     } catch (err) {
       alert("Error loading map: " + err.message);
     }
+  };
+
+  const handleImageError = () => {
+    console.error("Failed to load image:", currentMap?.image_path);
+    setImageError(true);
   };
 
   const addStall = () => {
@@ -142,10 +151,8 @@ export default function MarketEdit() {
     const currentStall = updated[index];
     
     if (currentStall.status === "maintenance") {
-      // If currently in maintenance, change back to available
       currentStall.status = "available";
     } else {
-      // If not in maintenance, set to maintenance
       currentStall.status = "maintenance";
       alert(`${currentStall.name} is now under maintenance.`);
     }
@@ -155,15 +162,34 @@ export default function MarketEdit() {
 
   const saveStalls = async () => {
     if (!currentMap) return alert("No map loaded");
+    
     try {
-      const res = await fetch(`${API_BASE}/save_stalls.php`, {
+      const res = await fetch(`${API_BASE}/update_stalls.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ map_id: currentMap.id, stalls }),
+        body: JSON.stringify({ 
+          map_id: currentMap.id, 
+          stalls: stalls.map(stall => ({
+            id: stall.id || null,
+            name: stall.name,
+            pos_x: parseFloat(stall.pos_x),
+            pos_y: parseFloat(stall.pos_y),
+            status: stall.status,
+            price: stall.price ? parseFloat(stall.price) : null,
+            height: stall.height ? parseFloat(stall.height) : null,
+            length: stall.length ? parseFloat(stall.length) : null,
+            width: stall.width ? parseFloat(stall.width) : null
+          }))
+        }),
       });
+      
       const data = await res.json();
-      if (data.status === "success") alert("Stalls saved!");
-      else alert("Save failed: " + (data.message || "Unknown"));
+      if (data.status === "success") {
+        alert(data.message || "Stalls saved successfully!");
+        handleView(currentMap.id);
+      } else {
+        alert("Save failed: " + (data.message || "Unknown"));
+      }
     } catch (err) {
       alert("Save error: " + err.message);
     }
@@ -217,16 +243,32 @@ export default function MarketEdit() {
       {currentMap && (
         <div className="map-editor">
           <h2>{currentMap.name}</h2>
+          
+          
           <div
             className="market-map"
             id="marketMap"
             ref={marketMapRef}
             style={{
-              backgroundImage: currentMap.image_path
+              backgroundImage: currentMap.image_path && !imageError
                 ? `url('${currentMap.image_path}')`
                 : "none",
+              backgroundColor: currentMap.image_path && !imageError ? "transparent" : "#f0f0f0",
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center"
             }}
           >
+            {/* Hidden image for error detection */}
+            <img 
+              ref={imageRef}
+              src={currentMap.image_path} 
+              alt="" 
+              style={{ display: 'none' }}
+              onError={handleImageError}
+              onLoad={() => setImageError(false)}
+            />
+            
             {stalls.map((stall, index) => (
               <div
                 key={index}

@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 require_once "db_market.php"; // PDO connection
 
 $data = json_decode(file_get_contents("php://input"), true);
-$renter_id = isset($data['id']) ? (int)$data['id'] : 0;
+$renter_id = isset($data['user_id']) ? (int)$data['user_id'] : 0; // Changed from 'id' to 'user_id'
 
 if (!$renter_id) {
     echo json_encode(['success' => false, 'message' => 'No renter ID provided']);
@@ -17,16 +17,16 @@ if (!$renter_id) {
 try {
     $pdo->beginTransaction();
 
-    // 1. Update renter status
-    $stmt = $pdo->prepare("UPDATE renters SET status = 'active' WHERE id = ?");
+    // 1. Update renter status - changed WHERE clause to use user_id
+    $stmt = $pdo->prepare("UPDATE renters SET status = 'active' WHERE user_id = ?");
     $stmt->execute([$renter_id]);
 
-    // 2. Get renter info + stall price
+    // 2. Get renter info + stall price - changed WHERE clause to use user_id
     $stmt = $pdo->prepare("
         SELECT r.stall_id, r.date_reserved, s.price AS rent_amount
         FROM renters r
         JOIN stalls s ON r.stall_id = s.id
-        WHERE r.id = ?
+        WHERE r.user_id = ?
     ");
     $stmt->execute([$renter_id]);
     $renter = $stmt->fetch(PDO::FETCH_ASSOC);

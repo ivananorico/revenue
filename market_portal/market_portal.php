@@ -1,5 +1,18 @@
 <?php
+session_start();
 require_once "db_market.php";
+
+// Example: You should already have a login system that sets these
+// $_SESSION['user_id'], $_SESSION['full_name'], $_SESSION['email']
+
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login or show message
+    die("Please log in to access the market portal.");
+}
+
+$user_id = $_SESSION['user_id'];
+$user_name = $_SESSION['full_name'];
+$user_email = $_SESSION['email'];
 
 // Handle selected map
 $map_id = isset($_GET['map_id']) ? (int)$_GET['map_id'] : null;
@@ -23,7 +36,6 @@ if ($map_id) {
         $stallsStmt->execute([$map_id]);
         $stalls = $stallsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Use the path as stored in DB
         $mapUrl = $map['image_path'];
         if (!preg_match('#^https?://#', $mapUrl)) {
             $mapUrl = "http://localhost/revenue/" . ltrim($mapUrl, '/');
@@ -42,6 +54,9 @@ if ($map_id) {
 
 <div class="header">
     <h1>Market Portal</h1>
+    <div class="user-info">
+        Logged in as: <strong><?= htmlspecialchars($user_name) ?></strong> (<?= htmlspecialchars($user_email) ?>, ID: <?= $user_id ?>)
+    </div>
     <form method="GET" class="map-selector">
         <label for="mapSelect">Select Market Map:</label>
         <select name="map_id" id="mapSelect" onchange="this.form.submit()">
@@ -62,18 +77,11 @@ if ($map_id) {
             <h2><?= htmlspecialchars($map['name']) ?></h2>
             <div class="market-map" id="marketMap" style="background-image: url('<?= htmlspecialchars($mapUrl) ?>');">
                 <?php foreach($stalls as $stall):
-                    // Correct status handling with maintenance
-                    if ($stall['status'] === 'available') {
-                        $statusClass = 'available';
-                    } elseif ($stall['status'] === 'reserved') {
-                        $statusClass = 'reserved';
-                    } elseif ($stall['status'] === 'occupied') {
-                        $statusClass = 'occupied';
-                    } elseif ($stall['status'] === 'maintenance') {
-                        $statusClass = 'maintenance';
-                    } else {
-                        $statusClass = 'available'; // fallback
-                    }
+                    if ($stall['status'] === 'available') $statusClass = 'available';
+                    elseif ($stall['status'] === 'reserved') $statusClass = 'reserved';
+                    elseif ($stall['status'] === 'occupied') $statusClass = 'occupied';
+                    elseif ($stall['status'] === 'maintenance') $statusClass = 'maintenance';
+                    else $statusClass = 'available';
                 ?>
                     <div class="stall <?= $statusClass ?>"
                          data-stall-id="<?= $stall['id'] ?>"
@@ -111,6 +119,7 @@ if ($map_id) {
                 <form id="renterForm" style="display: none;">
                     <input type="hidden" name="stall_id" id="stall_id">
                     <input type="hidden" name="map_id" value="<?= $map_id ?>">
+                    <input type="hidden" name="user_id" value="<?= $user_id ?>">
                     
                     <div class="selected-stall-info">
                         <h4 id="selectedStallName"></h4>
@@ -121,7 +130,7 @@ if ($map_id) {
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="full_name">Full Name *</label>
-                            <input type="text" name="full_name" id="full_name" required>
+                            <input type="text" name="full_name" id="full_name" value="<?= htmlspecialchars($user_name) ?>" required>
                         </div>
                         
                         <div class="form-group">
@@ -131,7 +140,7 @@ if ($map_id) {
                         
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" name="email" id="email">
+                            <input type="email" name="email" id="email" value="<?= htmlspecialchars($user_email) ?>">
                         </div>
                         
                         <div class="form-group full-width">
@@ -157,14 +166,8 @@ let selectedStall = null;
 document.querySelectorAll('.stall').forEach(stall => {
     stall.addEventListener('click', () => {
         const status = stall.getAttribute('data-status');
-        
-        // Prevent selection of reserved, occupied, or maintenance stalls
-        if(status === 'reserved' || status === 'occupied' || status === 'maintenance'){
-            let message = 'This stall is not available!';
-            if(status === 'maintenance') {
-                message = 'This stall is under maintenance and cannot be reserved.';
-            }
-            alert(message);
+        if(status !== 'available'){
+            alert(status === 'maintenance' ? 'This stall is under maintenance!' : 'This stall is not available!');
             return;
         }
 
@@ -172,47 +175,33 @@ document.querySelectorAll('.stall').forEach(stall => {
         stall.classList.add('selected');
         selectedStall = stall;
 
-        // Update form with stall details
         document.getElementById('selectedStallName').textContent = 
             'Reserving: ' + stall.getAttribute('data-stall-name');
         document.getElementById('stall_id').value = stall.getAttribute('data-stall-id');
-        
-        // Price display
+
         const price = parseFloat(stall.getAttribute('data-price'));
         document.getElementById('selectedStallPrice').textContent =
             'Price: ₱' + (price > 0 ? price.toLocaleString() : '0.00');
 
-        // Dimensions display (still shown in form but not in stall box)
         const length = stall.getAttribute('data-length');
         const width = stall.getAttribute('data-width');
         const height = stall.getAttribute('data-height');
         let dimensionsText = '';
         if (length > 0 && width > 0) {
             dimensionsText = `Size: ${length}m × ${width}m`;
-            if (height > 0) {
-                dimensionsText += ` × ${height}m`;
-            }
+            if (height > 0) dimensionsText += ` × ${height}m`;
         }
         document.getElementById('selectedStallDimensions').textContent = dimensionsText;
 
-        // Show form
         document.getElementById('formPlaceholder').style.display = 'none';
         document.getElementById('renterForm').style.display = 'block';
-
-        // Clear and focus form
-        document.getElementById('full_name').value = '';
-        document.getElementById('contact_number').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('address').value = '';
         document.getElementById('full_name').focus();
     });
 });
 
 function clearSelection() {
-    if (selectedStall) {
-        selectedStall.classList.remove('selected');
-        selectedStall = null;
-    }
+    if (selectedStall) selectedStall.classList.remove('selected');
+    selectedStall = null;
     document.getElementById('formPlaceholder').style.display = 'block';
     document.getElementById('renterForm').style.display = 'none';
 }
@@ -242,12 +231,6 @@ document.getElementById('renterForm').addEventListener('submit', async function(
         }
     } catch(err){
         alert('Error: ' + err.message);
-    }
-});
-
-document.getElementById('marketMap').addEventListener('click', function(e) {
-    if (e.target === this) {
-        clearSelection();
     }
 });
 </script>

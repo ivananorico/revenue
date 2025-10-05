@@ -2,12 +2,13 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-require_once "db_market.php"; // Make sure this connects using PDO
+require_once "db_market.php";
 
+// Get the renter ID from React Router
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if (!$id) {
-    echo json_encode([]);
+    echo json_encode(["error" => "No ID provided"]);
     exit;
 }
 
@@ -23,12 +24,17 @@ try {
             (s.width * s.length) AS stall_area
         FROM renters r
         JOIN stalls s ON r.stall_id = s.id
-        WHERE r.id = ?
+        WHERE r.user_id = ?
     ");
     $stmt->execute([$id]);
     $renter = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    echo json_encode($renter ? [$renter] : []);
+    if ($renter) {
+        echo json_encode($renter);
+    } else {
+        echo json_encode(["error" => "Renter not found"]);
+    }
+
 } catch (Exception $e) {
     echo json_encode(["error" => $e->getMessage()]);
 }

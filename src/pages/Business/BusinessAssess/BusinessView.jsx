@@ -25,7 +25,7 @@ export default function BusinessView() {
         setError('');
         
         // Fetch application details
-        const appResponse = await fetch(`http://localhost/revenue/backend/Business/business_view.php?id=${id}`);
+        const appResponse = await fetch(`http://localhost/revenue/backend/Business/BusinessAssess/business_view.php?id=${id}`);
         
         if (!appResponse.ok) {
           throw new Error(`HTTP error! status: ${appResponse.status}`);
@@ -40,7 +40,7 @@ export default function BusinessView() {
         }
 
         // Fetch tax rates and regulatory fees in one call
-        const combinedResponse = await fetch('http://localhost/revenue/backend/Business/get_tax_and_fees.php');
+        const combinedResponse = await fetch('http://localhost/revenue/backend/Business/BusinessAssess/get_tax_and_fees.php');
         if (!combinedResponse.ok) {
           throw new Error(`HTTP error! status: ${combinedResponse.status}`);
         }
@@ -226,7 +226,7 @@ export default function BusinessView() {
 
       console.log('Sending assessment data:', assessmentData);
 
-      const response = await fetch('http://localhost/revenue/backend/Business/assess_application.php', {
+      const response = await fetch('http://localhost/revenue/backend/Business/BusinessAssess/assess_application.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -15,7 +15,7 @@ export default function BusinessAssess() {
     const fetchPendingApplications = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost/revenue/backend/Business/all_business.php?status=pending');
+        const response = await fetch('http://localhost/revenue/backend/Business/BusinessAssess/all_business.php?status=pending');
         
         if (!response.ok) {
           throw new Error('Failed to fetch applications');

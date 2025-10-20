@@ -26,7 +26,7 @@ export default function RenterDetails() {
           throw new Error('Invalid application ID');
         }
 
-        const url = `http://localhost/revenue/backend/Market/RentApproval/get_application_details.php?id=${id}`;
+        const url = `http://localhost/revenue/backend/Market/RentApproval/BusinessAssess/get_application_details.php?id=${id}`;
         
         const response = await fetch(url, {
           method: 'GET',

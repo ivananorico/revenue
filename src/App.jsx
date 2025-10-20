@@ -18,6 +18,8 @@ import BusinessAssess from './pages/Business/BusinessAssess/BusinessAssess'
 import BusinessDash from './pages/Business/BusinessDash/BusinessDash'
 import BusinessView from './pages/Business/BusinessAssess/BusinessView'
 
+import BusinessStatus from './pages/Business/BusinessStatus/BusinessStatus'
+import BusinessStatusView from './pages/Business/BusinessStatus/BusinessStatusView'
 
 import Reveneu from './pages/Treasury/Revenue'
 import Disbursement from './pages/Treasury/Disbursement'
@@ -78,8 +80,9 @@ function App() {
               <Route path="/Business/BusinessAssess" element={<BusinessAssess />} />
               <Route path="/Business/BusinessDash" element={<BusinessDash />} />
               <Route path="/Business/BusinessView/:id" element={<BusinessView />} />
+              <Route path="/Business/BusinessStatus" element={<BusinessStatus />} />
+              <Route path="/Business/BusinessStatusView/:id" element={<BusinessStatusView />} />
 
-              
               <Route path="/Treasury/Revenue" element={<Reveneu />} />
               <Route path="/Treasury/Disbursement" element={<Disbursement />} />
               <Route path="/Treasury/Report" element={<Report />} />

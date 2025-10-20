@@ -33,17 +33,22 @@ const sidebarItems = [
     label: "Business Tax and Regulatory Fee Payment",
     icon: LayoutDashboard,
     subItems: [
+       {
+        id: "submodule2",
+        label: "Business Tax & Regulatory Fee Dashboard",
+        path: "/Business/BusinessDash"
+      },
       {
         id: "submodule2",
         label: "Business Tax & Regulatory Assessment",
         path: "/Business/BusinessAssess"
       },
-      {
+        
+       {
         id: "submodule2",
-        label: "Business Tax & Regulatory Fee Dashboard",
-        path: "/Business/BusinessDash"
+        label: "Business Tax Status",
+        path: "/Business/BusinessStatus"
       },
-
     ]
   },
   {

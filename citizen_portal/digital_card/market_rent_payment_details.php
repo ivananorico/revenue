@@ -12,12 +12,28 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Preserve GET or POST parameters
-$application_id = $_GET['application_id'] ?? $_POST['application_id'] ?? null;
-$month_year     = $_GET['month_year'] ?? $_POST['month_year'] ?? null;
-$amount         = $_GET['amount'] ?? $_POST['amount'] ?? 0;
-$payment_for    = $_GET['payment_for'] ?? $_POST['payment_for'] ?? 'single_month';
-$payment_type   = $_GET['payment_type'] ?? $_POST['payment_type'] ?? 'monthly_rent';
+// Preserve GET or POST parameters - WITH FALLBACK TO SESSION
+$application_id = $_GET['application_id'] ?? $_POST['application_id'] ?? $_SESSION['rent_payment_data']['application_id'] ?? null;
+$month_year     = $_GET['month_year'] ?? $_POST['month_year'] ?? $_SESSION['rent_payment_data']['month_year'] ?? null;
+$amount         = $_GET['amount'] ?? $_POST['amount'] ?? $_SESSION['rent_payment_data']['amount'] ?? 0;
+$payment_for    = $_GET['payment_for'] ?? $_POST['payment_for'] ?? $_SESSION['rent_payment_data']['payment_for'] ?? 'single_month';
+$payment_type   = $_GET['payment_type'] ?? $_POST['payment_type'] ?? $_SESSION['rent_payment_data']['payment_type'] ?? 'monthly_rent';
+
+// Store current payment data in session for back button functionality
+if ($application_id && $amount > 0) {
+    $_SESSION['current_rent_payment'] = [
+        'application_id' => $application_id,
+        'month_year' => $month_year,
+        'amount' => $amount,
+        'payment_for' => $payment_for,
+        'payment_type' => $payment_type
+    ];
+}
+
+// If amount is still 0, try to calculate from payment details
+if ($amount == 0 && isset($_SESSION['current_rent_payment'])) {
+    $amount = $_SESSION['current_rent_payment']['amount'];
+}
 
 if (!$application_id) {
     $_SESSION['error'] = "No application specified.";
@@ -30,6 +46,7 @@ require_once '../../db/Market/market_db.php';
 
 $application = null;
 $payment_details = [];
+$calculated_amount = 0;
 
 try {
     // Get application and renter details
@@ -62,7 +79,7 @@ try {
         exit;
     }
 
-    // Get unpaid payments for display
+    // Get unpaid payments for display and amount calculation
     if ($payment_for === 'all_months') {
         $payments_stmt = $pdo->prepare("
             SELECT * FROM monthly_payments 
@@ -71,6 +88,11 @@ try {
         ");
         $payments_stmt->execute([$application['renter_id']]);
         $payment_details = $payments_stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Calculate total amount from database
+        foreach ($payment_details as $payment) {
+            $calculated_amount += $payment['amount'] + ($payment['late_fee'] ?? 0);
+        }
     } else {
         // For single month payment
         $payment_stmt = $pdo->prepare("
@@ -79,6 +101,15 @@ try {
         ");
         $payment_stmt->execute([$application['renter_id'], $month_year]);
         $payment_details = $payment_stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (!empty($payment_details)) {
+            $calculated_amount = $payment_details[0]['amount'] + ($payment_details[0]['late_fee'] ?? 0);
+        }
+    }
+
+    // Use calculated amount if no amount is provided or if provided amount is 0
+    if ($amount == 0 && $calculated_amount > 0) {
+        $amount = $calculated_amount;
     }
 
 } catch (PDOException $e) {
@@ -117,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $clear_stmt->execute([$application['renter_id']]);
             
-            // 2. Clear ALL payment-related session data
+            // 2. Clear ALL payment-related session data (except current payment)
             $payment_session_keys = [
                 'verification_code', 'phone_number', 'email', 'expires_at',
                 'payment_data', 'verification_attempts', 'rent_payment_data'
@@ -147,6 +178,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'email' => $application['email'],
                 'payment_details' => $payment_details
             ];
+            
+            // Clear current payment session since we're proceeding
+            unset($_SESSION['current_rent_payment']);
             
             // Redirect to payment processing page
             header('Location: market_rent_payment_process.php');
@@ -243,6 +277,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 1rem;
             margin-bottom: 1rem;
         }
+        
+        .amount-warning {
+            background: #fef3cd;
+            border: 1px solid #fde68a;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -257,6 +299,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="max-w-4xl mx-auto">
+            
+            <!-- Amount Warning -->
+            <?php if ($amount == 0): ?>
+            <div class="amount-warning">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-yellow-700 font-medium">Warning: Amount not detected. Please go back and select payment options again.</span>
+                </div>
+                <div class="mt-2">
+                    <a href="../market_card/pay_rent/pay_rent.php?application_id=<?= $application_id ?>" 
+                       class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors duration-200 font-semibold text-sm">
+                        ← Back to Rent Payments
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Cleanup Notice -->
             <div class="cleanup-notice">
                 <div class="flex items-center">
@@ -338,8 +399,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <!-- Submit Button -->
                         <button type="submit" 
                                 id="submitButton"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 mt-6 hidden">
-                            ✅ Continue to Payment
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 mt-6 hidden"
+                                <?= $amount == 0 ? 'disabled' : '' ?>>
+                            <?= $amount == 0 ? '⚠️ Amount Not Detected' : '✅ Continue to Payment' ?>
                         </button>
                     </form>
                 </div>
@@ -447,8 +509,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Check the radio button
             document.getElementById(method).checked = true;
             
-            // Show submit button
-            document.getElementById('submitButton').classList.remove('hidden');
+            // Show submit button (only if amount is valid)
+            const submitButton = document.getElementById('submitButton');
+            const amount = <?= $amount ?>;
+            
+            if (amount > 0) {
+                submitButton.classList.remove('hidden');
+                submitButton.innerHTML = '✅ Continue to Payment';
+                submitButton.disabled = false;
+            }
         }
 
         // Form submission handling
@@ -457,6 +526,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 e.preventDefault();
                 alert('Please select a payment method.');
                 return;
+            }
+            
+            const amount = <?= $amount ?>;
+            if (amount <= 0) {
+                e.preventDefault();
+                alert('Invalid payment amount. Please go back and try again.');
+                return;
+            }
+        });
+
+        // Initialize page - disable form if amount is 0
+        document.addEventListener('DOMContentLoaded', function() {
+            const amount = <?= $amount ?>;
+            if (amount <= 0) {
+                document.getElementById('submitButton').classList.remove('hidden');
+                document.getElementById('submitButton').disabled = true;
             }
         });
     </script>

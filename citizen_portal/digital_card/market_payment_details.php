@@ -320,7 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Back Button -->
             <div class="text-center mt-8">
-                <a href="../market_card/view_documents/view_documents.php?application_id=<?= $application_id ?>" 
+                <a href="../market_card/view_documents/view_pending.php?application_id=<?= $application_id ?>" 
                    class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-semibold">
                     ← Back to Application Details
                 </a>

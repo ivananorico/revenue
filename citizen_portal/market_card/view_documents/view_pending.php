@@ -199,7 +199,7 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
     <link rel="stylesheet" href="view_pending.css">
 </head>
 <body class="bg-gray-50">
-     <?php include '../../../citizen_portal/navbar.php'; ?>
+      <?php include '../../../citizen_portal/navbar.php'; ?>
 
     <div class="container mx-auto px-6 py-8 max-w-6xl">
         <!-- Header -->

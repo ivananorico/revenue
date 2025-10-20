@@ -1,6 +1,7 @@
 <?php
 session_start();
-if (!isset($_SESSION['success'])) {
+// Less strict check - only redirect if neither success message nor application ID exists
+if (!isset($_SESSION['success']) && !isset($_SESSION['application_id'])) {
     header('Location: market_portal.php');
     exit;
 }
@@ -29,16 +30,31 @@ if (!isset($_SESSION['success'])) {
                 </div>
             <?php endif; ?>
             
-            <div class="success-actions">
-                <a href="../citizen_portal/market_card/view_documents/view_documents.php" class="btn-secondary">View Application Status</a>
-            </div>
+            <<div class="success-actions">
+    <a href="../citizen_portal/market_card/view_documents/view_pending.php?application_id=<?= $_SESSION['application_id'] ?>" class="btn-secondary">View Application Status</a>   
+</div>
         </div>
     </div>
     
     <?php
-    // Clear success message after displaying
-    unset($_SESSION['success']);
-    unset($_SESSION['application_id']);
+    // Keep session data for now - let destination pages handle clearing
+    // Or optionally clear after a delay using JavaScript
     ?>
+    
+    <script>
+        // Optional: Clear session data after user navigates away
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Only clear if it's an internal navigation
+                    if (this.href && !this.target) {
+                        // You could optionally send an AJAX request to clear sessions
+                        // fetch('clear_sessions.php').then(() => window.location = this.href);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -155,7 +155,43 @@ try {
     
     // Insert quarterly breakdown if provided
     if (!empty($data->quarterly_breakdown)) {
+        // Check if assessment_quarters table exists and has proper structure
+        $checkQuartersTable = $conn->query("SHOW TABLES LIKE 'assessment_quarters'");
+        if ($checkQuartersTable->num_rows == 0) {
+            $createQuartersTable = "CREATE TABLE assessment_quarters (
+                id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                assessment_id INT(11) NOT NULL,
+                quarter_name VARCHAR(50) NOT NULL,
+                amount DECIMAL(15,2) NOT NULL,
+                due_date DATE NOT NULL,
+                days_remaining INT NOT NULL,
+                total_days INT NOT NULL,
+                percentage DECIMAL(5,2) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (assessment_id) REFERENCES business_assessments(id) ON DELETE CASCADE
+            )";
+            
+            if (!$conn->query($createQuartersTable)) {
+                throw new Exception('Error creating assessment_quarters table: ' . $conn->error);
+            }
+        }
+        
         foreach ($data->quarterly_breakdown as $quarter) {
+            // Make sure dueDate is provided and valid
+            if (empty($quarter->dueDate)) {
+                // Calculate default due date (15 days after quarter end)
+                $due_date = date('Y-m-d', strtotime('+15 days'));
+            } else {
+                $due_date = date('Y-m-d', strtotime($quarter->dueDate));
+            }
+            
+            // Ensure all required fields have values
+            $quarter_name = $quarter->name ?? 'Unknown Quarter';
+            $amount = $quarter->amount ?? 0;
+            $days_remaining = $quarter->daysRemaining ?? 0;
+            $total_days = $quarter->daysInQuarter ?? 0;
+            $percentage = $quarter->proportionalPercentage ?? 0;
+            
             $insertQuarter = "INSERT INTO assessment_quarters 
                             (assessment_id, quarter_name, amount, due_date, days_remaining, total_days, percentage) 
                             VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -165,15 +201,14 @@ try {
                 throw new Exception('Prepare failed: ' . $conn->error);
             }
             
-            $due_date = date('Y-m-d', strtotime($quarter->dueDate));
             $stmt->bind_param("isdiiid", 
                 $assessment_id, 
-                $quarter->name, 
-                $quarter->amount, 
+                $quarter_name, 
+                $amount, 
                 $due_date,
-                $quarter->daysRemaining,
-                $quarter->daysInQuarter,
-                $quarter->proportionalPercentage
+                $days_remaining,
+                $total_days,
+                $percentage
             );
             
             if (!$stmt->execute()) {

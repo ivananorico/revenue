@@ -47,7 +47,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['full_name'])) {
             </div>
 
             <!-- Business Tax Card -->
-            <div class="card" onclick="location.href='business-tax/calculate.php'">
+            <div class="card" onclick="location.href='../api/business_user/business_dashboard.php'">
                 <div class="card-icon">💼</div>
                 <h3>Business Tax</h3>
                 <p>Calculate business taxes, file returns, and make payments</p>

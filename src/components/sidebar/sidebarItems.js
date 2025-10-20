@@ -36,12 +36,12 @@ const sidebarItems = [
       {
         id: "submodule2",
         label: "Business Tax & Regulatory Assessment",
-        path: "/Business/Business1"
+        path: "/Business/BusinessAssess"
       },
       {
         id: "submodule2",
         label: "Business Tax & Regulatory Fee Dashboard",
-        path: "/Business/Business2"
+        path: "/Business/BusinessDash"
       },
 
     ]
@@ -53,7 +53,7 @@ const sidebarItems = [
     subItems: [
       {
         id: "submodule3",
-        label: "Tax Collection Dashboard",
+        label: "Revenue",
         path: "/Treasury/Revenue"
       },
       {
@@ -75,13 +75,13 @@ const sidebarItems = [
     subItems: [
       {
         id: "submodule4",
-        label: "Real Property Tax Receipt",
-        path: "/Digital/Digital1"
+        label: "Payment Transaction",
+        path: "/Digital/Transact"
       },
       {
         id: "submodule4",
-        label: "Business Tax & Regulatory Fee Receipt",
-        path: "/Digital/Digital2"
+        label: "Payment Receipt",
+        path: "/Digital/Receipt"
       },
       {
         id: "submodule4",

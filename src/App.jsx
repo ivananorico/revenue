@@ -14,17 +14,17 @@ import RPTAssess from './pages/RPT/RPTAssess/RPTAssess'
 import RPTDetails from './pages/RPT/RPTAssess/RPTDetails'
 
 
-import Business1 from './pages/Business/Business1'
-import Business2 from './pages/Business/Business2'
-
+import BusinessAssess from './pages/Business/BusinessAssess/BusinessAssess'
+import BusinessDash from './pages/Business/BusinessDash/BusinessDash'
+import BusinessView from './pages/Business/BusinessAssess/BusinessView'
 
 
 import Reveneu from './pages/Treasury/Revenue'
 import Disbursement from './pages/Treasury/Disbursement'
 import Report from './pages/Treasury/Report'
 
-import Digital1 from './pages/Digital/Digital1'
-import Digital2 from './pages/Digital/Digital2'
+import Transact from './pages/Digital/Transact'
+import Receipt from './pages/Digital/Receipt'
 import MarketDig from './pages/Digital/MarketDig'
 
 import MarketCreator from './pages/Market/MapCreator/MapCreator'
@@ -37,6 +37,7 @@ import RenterDetails from './pages/Market/RentApproval/RenterDetails'
 
 import RenterRent from './pages/Market/RenterRent/RenterRent'
 import RenterStatus from './pages/Market/RenterRent/RenterStatus'
+
 
 
 
@@ -74,17 +75,17 @@ function App() {
               <Route path="/RPT/RPTDetails/:id" element={<RPTDetails />} />
              
 
-              <Route path="/Business/Business1" element={<Business1 />} />
-              <Route path="/Business/Business2" element={<Business2 />} />
-
+              <Route path="/Business/BusinessAssess" element={<BusinessAssess />} />
+              <Route path="/Business/BusinessDash" element={<BusinessDash />} />
+              <Route path="/Business/BusinessView/:id" element={<BusinessView />} />
 
               
               <Route path="/Treasury/Revenue" element={<Reveneu />} />
               <Route path="/Treasury/Disbursement" element={<Disbursement />} />
               <Route path="/Treasury/Report" element={<Report />} />
 
-              <Route path="/Digital/Digital1" element={<Digital1 />} />
-              <Route path="/Digital/Digital2" element={<Digital2 />} />
+              <Route path="/Digital/Transact" element={<Transact />} />
+              <Route path="/Digital/Receipt" element={<Receipt />} />
               <Route path="/Digital/MarketDig" element={<MarketDig />} />
 
               <Route path="/Market/MarketCreator" element={<MarketCreator />} />

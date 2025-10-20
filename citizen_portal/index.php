@@ -434,15 +434,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_email'])) {
         </div>
     </div>
 
-    <!-- Terms of Service Modal -->
-    <div id="termsModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-            <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-center">
+    <!-- Terms of Service Modal - Centered -->
+    <div id="termsModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto mx-auto">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-center relative">
                 <h3 class="text-lg font-semibold text-center">GoServePH Terms of Service Agreement</h3>
                 <button type="button" id="closeTerms" class="absolute right-4 text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
             </div>
-            <div class="px-6 py-4 space-y-4 text-sm leading-6 text-center">
-                <p><strong>Welcome to GoServePH!</strong></p>
+            <div class="px-6 py-4 space-y-4 text-sm leading-6">
+                <p class="text-center"><strong>Welcome to GoServePH!</strong></p>
                 <p class="text-justify">This GoServePH Services Agreement ("Agreement") is a binding legal contract for the use of our software systems—which handle data input, monitoring, processing, and analytics—("Services") between GoServePH ("us," "our," or "we") and you, the registered user ("you" or "user").</p>
                 <p class="text-justify">By registering for and using our Services, you agree to be bound by the terms of this Agreement. If you are entering into this Agreement on behalf of a company or other legal entity, you represent that you have the authority to bind such entity to these terms.</p>
                 
@@ -481,15 +481,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_email'])) {
         </div>
     </div>
 
-    <!-- Privacy Policy Modal -->
-    <div id="privacyModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-            <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-center">
+    <!-- Privacy Policy Modal - Centered -->
+    <div id="privacyModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-y-auto mx-auto">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-center relative">
                 <h3 class="text-lg font-semibold text-center">GoServePH Data Privacy Policy</h3>
                 <button type="button" id="closePrivacy" class="absolute right-4 text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
             </div>
-            <div class="px-6 py-4 space-y-4 text-sm leading-6 text-center">
-                <p><strong>Protecting the information you and your users handle through our system is our highest priority.</strong> This policy outlines how GoServePH manages, secures, and uses your data.</p>
+            <div class="px-6 py-4 space-y-4 text-sm leading-6">
+                <p class="text-center"><strong>Protecting the information you and your users handle through our system is our highest priority.</strong> This policy outlines how GoServePH manages, secures, and uses your data.</p>
                 
                 <h4 class="font-semibold mt-4 text-left">1. Information We Collect</h4>
                 <p class="text-justify">We collect information you provide directly to us, including:</p>
@@ -708,7 +708,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_email'])) {
         // Function to show login form (used after successful registration)
         function showLoginForm() {
             document.getElementById('registerFormContainer').classList.add('hidden');
-            dss
         }
     </script>
 </body>

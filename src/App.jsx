@@ -15,7 +15,6 @@ import RPTDetails from './pages/RPT/RPTAssess/RPTDetails'
 
 
 import BusinessAssess from './pages/Business/BusinessAssess/BusinessAssess'
-import BusinessDash from './pages/Business/BusinessDash/BusinessDash'
 import BusinessView from './pages/Business/BusinessAssess/BusinessView'
 
 import BusinessStatus from './pages/Business/BusinessStatus/BusinessStatus'
@@ -26,8 +25,7 @@ import Disbursement from './pages/Treasury/Disbursement'
 import Report from './pages/Treasury/Report'
 
 import Transact from './pages/Digital/Transact'
-import Receipt from './pages/Digital/Receipt'
-import MarketDig from './pages/Digital/MarketDig'
+
 
 import MarketCreator from './pages/Market/MapCreator/MapCreator'
 import MarketOutput from './pages/Market/MapCreator/MarketOutput'
@@ -78,7 +76,6 @@ function App() {
              
 
               <Route path="/Business/BusinessAssess" element={<BusinessAssess />} />
-              <Route path="/Business/BusinessDash" element={<BusinessDash />} />
               <Route path="/Business/BusinessView/:id" element={<BusinessView />} />
               <Route path="/Business/BusinessStatus" element={<BusinessStatus />} />
               <Route path="/Business/BusinessStatusView/:id" element={<BusinessStatusView />} />
@@ -88,9 +85,7 @@ function App() {
               <Route path="/Treasury/Report" element={<Report />} />
 
               <Route path="/Digital/Transact" element={<Transact />} />
-              <Route path="/Digital/Receipt" element={<Receipt />} />
-              <Route path="/Digital/MarketDig" element={<MarketDig />} />
-
+   
               <Route path="/Market/MarketCreator" element={<MarketCreator />} />
               <Route path="/Market/MarketOutput/view/:id" element={<MarketOutput />} />
               <Route path="/Market/ViewAllMaps" element={<ViewAllMaps />} />

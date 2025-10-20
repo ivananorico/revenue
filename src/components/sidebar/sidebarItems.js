@@ -33,11 +33,6 @@ const sidebarItems = [
     label: "Business Tax and Regulatory Fee Payment",
     icon: LayoutDashboard,
     subItems: [
-       {
-        id: "submodule2",
-        label: "Business Tax & Regulatory Fee Dashboard",
-        path: "/Business/BusinessDash"
-      },
       {
         id: "submodule2",
         label: "Business Tax & Regulatory Assessment",
@@ -83,16 +78,7 @@ const sidebarItems = [
         label: "Payment Transaction",
         path: "/Digital/Transact"
       },
-      {
-        id: "submodule4",
-        label: "Payment Receipt",
-        path: "/Digital/Receipt"
-      },
-      {
-        id: "submodule4",
-        label: "Market Stall Rental Receitp",
-        path: "/Digital/MarketDig"
-      }
+     
     ]
   },
   {

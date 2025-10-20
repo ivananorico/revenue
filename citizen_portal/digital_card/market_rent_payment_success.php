@@ -205,11 +205,7 @@ unset($_SESSION['rent_payment_success']);
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="../market_card/payment_rent.php?application_id=<?= $application_id ?>" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center">
-                    📊 View Payment History
-                </a>
-                <a href="../../../market_card/pay_rent/pay_rent.php" 
+                <a href="../../citizen_portal/market_card/pay_rent/pay_rent.php" 
                    class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center">
                     🏠 Back to Dashboard
                 </a>

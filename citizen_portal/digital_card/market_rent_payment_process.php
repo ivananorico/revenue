@@ -441,7 +441,7 @@ if ($show_verification_modal && !isset($_SESSION['rent_verification_code'])) {
     <style>
         .payment-header {
             background: linear-gradient(135deg, 
-                <?= $payment_data['payment_method'] === 'gcash' ? '#00a64f, #007a3d' : '#00a3ff, #0055ff' ?>);
+                <?= $payment_data['payment_method'] === 'gcash' ? '#4d3de0ff, #757df6ff' : '#32e43bff, #1aba62ff' ?>);
             color: white;
             padding: 2rem;
             text-align: center;

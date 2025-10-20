@@ -10,109 +10,148 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $application_id = $_GET['application_id'] ?? null;
 
-// Remove the redirect and handle missing application_id gracefully
+// Debug: Log the request
+error_log("RPT Payment Debug: User $user_id accessing application $application_id");
+
 if (!$application_id) {
     $_SESSION['error'] = "No application specified. Please select a property from the dashboard.";
-    // Don't redirect, just show the error and stop further processing
     $application = null;
 } else {
-    // Fetch application and tax details
     try {
-        // Get application details with land information
-        $stmt = $pdo->prepare("
-            SELECT 
-                ra.*,
-                l.land_id,
-                l.location,
-                l.barangay,
-                l.municipality,
-                l.lot_area,
-                l.land_use,
-                l.tdn_no as land_tdn
-            FROM rpt_applications ra
-            LEFT JOIN land l ON ra.id = l.application_id
-            WHERE ra.id = ? AND ra.user_id = ? AND ra.status = 'approved'
+        // First, let's check what's actually in the database
+        $debug_stmt = $pdo->prepare("
+            SELECT id, status, application_type, user_id 
+            FROM rpt_applications 
+            WHERE id = ?
         ");
-        $stmt->execute([$application_id, $user_id]);
-        $application = $stmt->fetch(PDO::FETCH_ASSOC);
+        $debug_stmt->execute([$application_id]);
+        $debug_app = $debug_stmt->fetch(PDO::FETCH_ASSOC);
         
-        if (!$application) {
-            $_SESSION['error'] = "Application not found, not approved, or access denied.";
-            $application = null;
-        } else {
-            // Check if land exists
-            if (!$application['land_id']) {
-                $_SESSION['error'] = "No land assessment found for this application.";
+        if ($debug_app) {
+            error_log("RPT Payment Debug: Application found - ID: {$debug_app['id']}, Status: {$debug_app['status']}, User ID: {$debug_app['user_id']}, Requested by: $user_id");
+            
+            // Check if user owns this application
+            if ($debug_app['user_id'] != $user_id) {
+                error_log("RPT Payment Debug: User $user_id does not own application $application_id (owned by {$debug_app['user_id']})");
+                $_SESSION['error'] = "Application not found or access denied.";
+                $application = null;
+            } 
+            // Check if application is approved
+            else if ($debug_app['status'] != 'approved') {
+                error_log("RPT Payment Debug: Application $application_id status is '{$debug_app['status']}', not 'approved'");
+                $_SESSION['error'] = "This application is not yet approved. Current status: " . ucfirst($debug_app['status']);
                 $application = null;
             } else {
-                // Get land assessment tax
-                $tax_stmt = $pdo->prepare("
-                    SELECT * FROM land_assessment_tax 
-                    WHERE land_id = ? 
-                    ORDER BY assessment_year DESC 
-                    LIMIT 1
+                error_log("RPT Payment Debug: Application $application_id is approved and owned by user $user_id");
+                
+                // Now try the main query
+                $stmt = $pdo->prepare("
+                    SELECT 
+                        ra.*,
+                        l.land_id,
+                        l.location,
+                        l.barangay,
+                        l.municipality,
+                        l.lot_area,
+                        l.land_use,
+                        l.tdn_no as land_tdn
+                    FROM rpt_applications ra
+                    LEFT JOIN land l ON ra.id = l.application_id
+                    WHERE ra.id = ? AND ra.user_id = ? AND ra.status = 'approved'
                 ");
-                $tax_stmt->execute([$application['land_id']]);
-                $land_tax = $tax_stmt->fetch(PDO::FETCH_ASSOC);
-
-                if (!$land_tax) {
-                    $_SESSION['error'] = "No tax assessment found for this property.";
+                $stmt->execute([$application_id, $user_id]);
+                $application = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if (!$application) {
+                    error_log("RPT Payment Debug: Main query returned no results for application $application_id");
+                    $_SESSION['error'] = "Application not found in system.";
+                    $application = null;
+                } else if (!$application['land_id']) {
+                    error_log("RPT Payment Debug: No land record found for application $application_id");
+                    $_SESSION['error'] = "No land assessment found for this application. Please wait for assessment to complete.";
                     $application = null;
                 } else {
-                    // Get building assessment tax if exists
-                    $building_stmt = $pdo->prepare("
-                        SELECT b.*, bat.* 
-                        FROM building b 
-                        LEFT JOIN building_assessment_tax bat ON b.building_id = bat.building_id 
-                        WHERE b.land_id = ? 
-                        ORDER BY bat.assessment_year DESC 
+                    error_log("RPT Payment Debug: Land found - ID: {$application['land_id']}");
+                    
+                    // Continue with the rest of your existing code...
+                    $tax_stmt = $pdo->prepare("
+                        SELECT * FROM land_assessment_tax 
+                        WHERE land_id = ? 
+                        ORDER BY assessment_year DESC 
                         LIMIT 1
                     ");
-                    $building_stmt->execute([$application['land_id']]);
-                    $building_tax = $building_stmt->fetch(PDO::FETCH_ASSOC);
+                    $tax_stmt->execute([$application['land_id']]);
+                    $land_tax = $tax_stmt->fetch(PDO::FETCH_ASSOC);
 
-                    // Get total tax
-                    $total_stmt = $pdo->prepare("
-                        SELECT * FROM total_tax 
-                        WHERE land_tax_id = ? 
-                        LIMIT 1
-                    ");
-                    $total_stmt->execute([$land_tax['land_tax_id']]);
-                    $total_tax = $total_stmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$land_tax) {
+                        error_log("RPT Payment Debug: No land tax assessment for land ID: {$application['land_id']}");
+                        $_SESSION['error'] = "No tax assessment found for this property. Please wait for tax calculation.";
+                        $application = null;
+                    } else {
+                        error_log("RPT Payment Debug: Land tax found - ID: {$land_tax['land_tax_id']}");
+                        
+                        // Get building assessment tax if exists
+                        $building_stmt = $pdo->prepare("
+                            SELECT b.*, bat.* 
+                            FROM building b 
+                            LEFT JOIN building_assessment_tax bat ON b.building_id = bat.building_id 
+                            WHERE b.land_id = ? 
+                            ORDER BY bat.assessment_year DESC 
+                            LIMIT 1
+                        ");
+                        $building_stmt->execute([$application['land_id']]);
+                        $building_tax = $building_stmt->fetch(PDO::FETCH_ASSOC);
 
-                    // Get unpaid quarterly payments
-                    $payments_stmt = $pdo->prepare("
-                        SELECT * FROM quarterly 
-                        WHERE land_tax_id = ? AND status IN ('unpaid', 'overdue')
-                        ORDER BY quarter_no ASC
-                    ");
-                    $payments_stmt->execute([$land_tax['land_tax_id']]);
-                    $unpaid_payments = $payments_stmt->fetchAll(PDO::FETCH_ASSOC);
+                        // Get total tax
+                        $total_stmt = $pdo->prepare("
+                            SELECT * FROM total_tax 
+                            WHERE land_tax_id = ? 
+                            LIMIT 1
+                        ");
+                        $total_stmt->execute([$land_tax['land_tax_id']]);
+                        $total_tax = $total_stmt->fetch(PDO::FETCH_ASSOC);
 
-                    // Get payment history (paid payments)
-                    $history_stmt = $pdo->prepare("
-                        SELECT * FROM quarterly 
-                        WHERE land_tax_id = ? AND status = 'paid'
-                        ORDER BY quarter_no DESC 
-                        LIMIT 6
-                    ");
-                    $history_stmt->execute([$land_tax['land_tax_id']]);
-                    $payment_history = $history_stmt->fetchAll(PDO::FETCH_ASSOC);
+                        // Get unpaid quarterly payments
+                        $payments_stmt = $pdo->prepare("
+                            SELECT * FROM quarterly 
+                            WHERE land_tax_id = ? AND status IN ('unpaid', 'overdue')
+                            ORDER BY quarter_no ASC
+                        ");
+                        $payments_stmt->execute([$land_tax['land_tax_id']]);
+                        $unpaid_payments = $payments_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Calculate total due amount
-                    $total_due = 0;
-                    foreach ($unpaid_payments as $payment) {
-                        $total_due += $payment['tax_amount'] + ($payment['penalty'] ?? 0);
+                        // Get payment history (paid payments)
+                        $history_stmt = $pdo->prepare("
+                            SELECT * FROM quarterly 
+                            WHERE land_tax_id = ? AND status = 'paid'
+                            ORDER BY quarter_no DESC 
+                            LIMIT 6
+                        ");
+                        $history_stmt->execute([$land_tax['land_tax_id']]);
+                        $payment_history = $history_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        // Calculate total due amount
+                        $total_due = 0;
+                        foreach ($unpaid_payments as $payment) {
+                            $total_due += $payment['tax_amount'] + ($payment['penalty'] ?? 0);
+                        }
+
+                        $annual_tax = $total_tax['total_tax'] ?? 0;
+                        $quarter_labels = ['1' => '1st Quarter (Jan-Mar)', '2' => '2nd Quarter (Apr-Jun)', '3' => '3rd Quarter (Jul-Sep)', '4' => '4th Quarter (Oct-Dec)'];
+                        
+                        error_log("RPT Payment Debug: Successfully loaded tax data - Annual: $annual_tax, Unpaid: " . count($unpaid_payments));
                     }
-
-                    $annual_tax = $total_tax['total_tax'] ?? 0;
-                    $quarter_labels = ['1' => '1st Quarter (Jan-Mar)', '2' => '2nd Quarter (Apr-Jun)', '3' => '3rd Quarter (Jul-Sep)', '4' => '4th Quarter (Oct-Dec)'];
                 }
             }
+        } else {
+            error_log("RPT Payment Debug: Application $application_id not found in database");
+            $_SESSION['error'] = "Application not found in system.";
+            $application = null;
         }
+        
     } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
-        $_SESSION['error'] = "Database error occurred.";
+        error_log("RPT Payment Database error: " . $e->getMessage());
+        $_SESSION['error'] = "Database error occurred: " . $e->getMessage();
         $application = null;
     }
 }
@@ -156,6 +195,8 @@ if (!$application_id) {
             border: none;
             cursor: pointer;
             transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-pay-single:hover {
             background: #059669;
@@ -171,6 +212,8 @@ if (!$application_id) {
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-pay-all:hover {
             background: #b45309;
@@ -215,7 +258,12 @@ if (!$application_id) {
         <!-- Display any error messages -->
         <?php if (isset($_SESSION['error'])): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <?= $_SESSION['error'] ?>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <?= $_SESSION['error'] ?>
+                </div>
                 <?php unset($_SESSION['error']); ?>
             </div>
         <?php endif; ?>
@@ -227,12 +275,27 @@ if (!$application_id) {
                     <span class="text-4xl text-red-600">❌</span>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Unable to Load Property</h2>
-                <p class="text-gray-600 mb-6">Please select a valid property from the dashboard.</p>
-                <a href="../rpt_dashboard.php" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
-                    ← Back to Dashboard
-                </a>
+                <p class="text-gray-600 mb-6">The property cannot be loaded for payment processing.</p>
+                <p class="text-gray-500 text-sm mb-6">
+                    Common reasons:<br>
+                    • Application not yet approved<br>
+                    • Property assessment not completed<br>
+                    • Tax calculation pending<br>
+                    • System processing in progress
+                </p>
+                <div class="flex gap-4 justify-center">
+                    <a href="../rpt_dashboard.php" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
+                        ← Back to Dashboard
+                    </a>
+                    <a href="../rpt_application.php" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
+                        📄 View Applications
+                    </a>
+                </div>
             </div>
         <?php else: ?>
+            <!-- Rest of your existing HTML code for successful application loading -->
+            <!-- [Keep all your existing HTML code from the previous version] -->
+            
             <!-- Header -->
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">Pay Real Property Tax</h1>
@@ -335,7 +398,7 @@ if (!$application_id) {
                                             ₱<?= number_format($payment_amount, 2) ?>
                                         </div>
                                         <!-- Payment button for single quarter -->
-                                        <a href=../../digital_card/rpt_tax_payment_details.php?application_id=<?= $application_id ?>&quarter_id=<?= $payment['quarter_id'] ?>&amount=<?= $payment_amount ?>&payment_for=quarter_<?= $payment['quarter_no'] ?>&payment_type=property_tax" 
+                                        <a href="../../digital_card/rpt_tax_payment_details.php?application_id=<?= $application_id ?>&quarter_id=<?= $payment['quarter_id'] ?>&amount=<?= $payment_amount ?>&payment_for=quarter_<?= $payment['quarter_no'] ?>&payment_type=property_tax" 
                                            class="btn-pay-single inline-block">
                                             Pay Now
                                         </a>
@@ -410,10 +473,6 @@ if (!$application_id) {
                 <button onclick="location.href='../rpt_dashboard.php'" 
                         class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
                     ← Back to Dashboard
-                </button>
-                <button onclick="location.href='rpt_application.php'" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
-                    📄 View Applications
                 </button>
             </div>
         <?php endif; ?>

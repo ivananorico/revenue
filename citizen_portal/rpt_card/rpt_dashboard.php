@@ -61,9 +61,9 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Check if user has any approved applications
 $has_approved_app = count($approved_applications) > 0;
 
-// If user has only one approved property, use that ID. Otherwise, we'll need a selection page.
+// FIXED: Always set primary_application_id if there are approved applications
 $primary_application_id = null;
-if (count($approved_applications) === 1) {
+if ($has_approved_app) {
     $primary_application_id = $approved_applications[0]['id'];
 }
 ?>
@@ -104,10 +104,12 @@ if (count($approved_applications) === 1) {
             background: white;
             border: 1px solid #e5e7eb;
             font-size: 0.875rem;
+            transition: all 0.2s ease;
         }
         
         .property-item:hover {
             background: #f3f4f6;
+            border-color: #3b82f6;
         }
         
         .property-link {
@@ -135,6 +137,56 @@ if (count($approved_applications) === 1) {
             color: #6b7280;
             font-style: italic;
             padding: 1rem;
+        }
+
+        /* Single property display */
+        .single-property {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .single-property-address {
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 0.25rem;
+        }
+
+        .single-property-tdn {
+            font-size: 0.75rem;
+            color: #0c4a6e;
+        }
+
+        /* Property selection dropdown */
+        .property-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .property-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .property-info {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            border-left: 4px solid #10b981;
+        }
+
+        .property-info p {
+            margin: 0.25rem 0;
+            font-size: 0.875rem;
         }
     </style>
 </head>
@@ -254,30 +306,34 @@ if (count($approved_applications) === 1) {
                     
                     <?php if ($has_approved_app): ?>
                         <?php if (count($approved_applications) === 1): ?>
-                            <!-- Single approved property - direct link with ID -->
-                            <a href="../rpt_card/pay_tax/pay_tax.php?application_id=<?= $primary_application_id ?>" class="card-button">
+                            <!-- Single approved property - show button with ID -->
+                            <div class="property-info">
+                                <p><strong>Property:</strong> <?= htmlspecialchars($approved_applications[0]['property_address']) ?></p>
+                                <?php if ($approved_applications[0]['tdn_no']): ?>
+                                    <p><strong>TDN:</strong> <?= htmlspecialchars($approved_applications[0]['tdn_no']) ?></p>
+                                <?php endif; ?>
+                            </div>
+                            <a href="../rpt_card/pay_tax/pay_tax.php?application_id=<?= $approved_applications[0]['id'] ?>" class="card-button">
                                 Pay Tax Now
                             </a>
-                            <p class="text-sm text-gray-600 mt-2">Pay taxes for your approved property</p>
                         <?php else: ?>
-                            <!-- Multiple approved properties - show selection -->
-                            <div class="approved-properties">
-                                <?php foreach ($approved_applications as $app): ?>
-                                    <div class="property-item">
-                                        <a href="../rpt_card/pay_tax/pay_tax.php?application_id=<?= $app['id'] ?>" class="property-link">
-                                            <div class="property-address">
-                                                <?= htmlspecialchars($app['property_address']) ?>
-                                            </div>
+                            <!-- Multiple approved properties - show dropdown selection -->
+                            <form id="payTaxForm" method="GET" action="../rpt_card/pay_tax/pay_tax.php">
+                                <select class="property-select" name="application_id" required>
+                                    <option value="">Select a property to pay taxes</option>
+                                    <?php foreach ($approved_applications as $app): ?>
+                                        <option value="<?= $app['id'] ?>">
+                                            <?= htmlspecialchars($app['property_address']) ?>
                                             <?php if ($app['tdn_no']): ?>
-                                                <div class="property-tdn">
-                                                    TDN: <?= htmlspecialchars($app['tdn_no']) ?>
-                                                </div>
+                                                (TDN: <?= htmlspecialchars($app['tdn_no']) ?>)
                                             <?php endif; ?>
-                                        </a>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-2">Click on a property to pay taxes</p>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="submit" class="card-button">
+                                    Pay Tax Now
+                                </button>
+                            </form>
                         <?php endif; ?>
                     <?php else: ?>
                         <button class="card-button disabled" disabled>
@@ -304,5 +360,49 @@ if (count($approved_applications) === 1) {
 
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to property items
+            const propertyItems = document.querySelectorAll('.property-item');
+            propertyItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Add confirmation for pay tax form submission
+            const payTaxForm = document.getElementById('payTaxForm');
+            if (payTaxForm) {
+                payTaxForm.addEventListener('submit', function(e) {
+                    const select = this.querySelector('select[name="application_id"]');
+                    const selectedOption = select.options[select.selectedIndex];
+                    if (selectedOption.value && !confirm(`Proceed to pay taxes for:\n"${selectedOption.text}"`)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Add confirmation for single property pay tax
+            const singlePayTaxButtons = document.querySelectorAll('.card-button[href*="pay_tax.php"]');
+            singlePayTaxButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const propertyInfo = this.previousElementSibling;
+                    if (propertyInfo && propertyInfo.classList.contains('property-info')) {
+                        const propertyText = propertyInfo.textContent.trim();
+                        if (!confirm(`Proceed to pay taxes for this property?`)) {
+                            e.preventDefault();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

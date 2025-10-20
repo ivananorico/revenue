@@ -341,16 +341,7 @@ $assessed_businesses = array_filter($businesses, function($business) {
         </div>
         <?php elseif (empty($assessed_businesses)): ?>
         <!-- No businesses message -->
-        <div class="business-list">
-            <div class="no-businesses">
-                <div style="font-size: 3em; margin-bottom: 15px;">🏢</div>
-                <h4 style="color: #2c3e50; margin-bottom: 10px;">No Assessed Businesses Found</h4>
-                <p style="margin-bottom: 20px;">You need to register and get a business assessed before you can pay taxes.</p>
-                <a href="register_business/register_business.php" class="pay-tax-btn">
-                    Register Business First
-                </a>
-            </div>
-        </div>
+        
         <?php endif; ?>
     </div>
 </body>

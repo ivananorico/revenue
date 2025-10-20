@@ -207,12 +207,12 @@ if ($payment_data['payment_for'] === 'all_quarters') {
             margin-bottom: 1rem;
         }
         
-        .maya-icon {
+        .gcash-icon {
             background: linear-gradient(135deg, #00a3ff, #0055ff);
             color: white;
         }
         
-        .gcash-icon {
+        .maya-icon {
             background: linear-gradient(135deg, #00a64f, #007a3d);
             color: white;
         }

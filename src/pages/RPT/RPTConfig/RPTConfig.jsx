@@ -93,7 +93,7 @@ export default function RPTConfig() {
       console.log('Building rates data:', buildingData)
       setBuildingRates(buildingData)
 
-      showMessage('success', 'Configuration data loaded successfully')
+      
 
     } catch (error) {
       console.error('Error fetching configuration:', error)

@@ -195,9 +195,6 @@ if (!empty($applications)) {
                 <a href="../rpt_dashboard.php" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </a>
-                <a href="register_rpt.php" class="btn btn-success">
-                    <i class="fas fa-plus"></i> Register New Property
-                </a>
             </div>
         </div>
 
@@ -215,8 +212,8 @@ if (!empty($applications)) {
                 </div>
                 <h3>No Applications Found</h3>
                 <p>You haven't submitted any RPT applications yet.</p>
-                <a href="../rpt_dashboard.php" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Register Property
+                <a href="../register_rpt/register_rpt.php" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Register RPT
                 </a>
             </div>
         <?php else: ?>

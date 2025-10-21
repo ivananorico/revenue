@@ -195,27 +195,603 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application Under Review - Municipal Services</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../navbar.css">
-    <link rel="stylesheet" href="view_pending.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+        }
+        
+        /* Header Styles */
+        .application-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .application-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #2c5aa0 0%, #4a90e2 50%, #2c5aa0 100%);
+        }
+        
+        .application-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2c5aa0 0%, #4a90e2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .application-id {
+            color: #6b7280;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        /* Status Card */
+        .status-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .status-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        
+        .status-info h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .status-description {
+            color: #6b7280;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .status-badge {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-pending { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .status-approved { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .status-payment_phase { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .status-paid { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+        .status-documents_submitted { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .status-rejected { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        
+        /* Payment Phase Section */
+        .payment-section {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
+            color: white;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+        
+        .fee-breakdown {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .fee-breakdown h3 {
+            color: #1f2937;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .fee-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .fee-item:last-child {
+            border-bottom: none;
+        }
+        
+        .fee-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .fee-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        .fee-total {
+            background: #f0f9ff;
+            margin: 0 -2rem;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+        
+        .fee-total .fee-label {
+            color: #1f2937;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .fee-total .fee-value {
+            color: #059669;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+        
+        .btn-pay {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Info Cards */
+        .info-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+        
+        .info-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.75rem;
+        }
+        
+        /* Stall Class Badges */
+        .stall-class-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stall-class-A { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .stall-class-B { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+        .stall-class-C { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        
+        /* File Display */
+        .file-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .file-display:hover {
+            background: #f0f7ff;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .file-type {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn-view, .btn-download {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-view {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+        
+        .btn-download {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        /* Next Steps */
+        .next-steps {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .next-steps h3 {
+            color: #0369a1;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .next-steps ul {
+            color: #0c4a6e;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .next-steps li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .next-steps li::before {
+            content: '✓';
+            color: #059669;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        @media (min-width: 640px) {
+            .action-buttons {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 800px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-header h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .document-viewer {
+            margin-bottom: 2rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .document-info {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .document-info h4 {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .application-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .application-header h1 {
+                font-size: 2rem;
+            }
+            
+            .status-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .payment-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .fee-breakdown {
+                padding: 1.5rem;
+            }
+            
+            .info-card {
+                padding: 1.5rem;
+            }
+            
+            .file-display {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .file-actions {
+                align-self: stretch;
+                justify-content: space-between;
+            }
+            
+            .btn-view, .btn-download {
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
-      <?php include '../../../citizen_portal/navbar.php'; ?>
+    <?php include '../../../citizen_portal/navbar.php'; ?>
 
-    <div class="container mx-auto px-6 py-8 max-w-6xl">
+    <div class="container mx-auto px-4 py-8">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Application Status</h1>
-            <p class="text-gray-600">Application ID: #<?= $application['id'] ?></p>
+        <div class="application-header">
+            <h1>Application Status</h1>
+            <p class="application-id">Application ID: #<?= $application['id'] ?></p>
         </div>
 
         <!-- Status Card -->
-        <div class="bg-white border border-gray-200 rounded-xl shadow-lg p-6 mb-8">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div class="flex-1">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-2">
-                        📋 Application Status: <?= getStatusDisplay($application['status']) ?>
+        <div class="status-card">
+            <div class="status-content">
+                <div class="status-info">
+                    <h2>
+                        <i class="fas fa-clipboard-check"></i>
+                        Application Status: <?= getStatusDisplay($application['status']) ?>
                     </h2>
-                    <p class="text-gray-700"><?= getStatusDescription($application['status']) ?></p>
+                    <p class="status-description"><?= getStatusDescription($application['status']) ?></p>
                 </div>
                 <div class="status-badge status-<?= strtolower($application['status']) ?>">
                     <?= getStatusDisplay($application['status']) ?>
@@ -232,7 +808,7 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
             </div>
             
             <div class="fee-breakdown">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Payment Summary</h3>
+                <h3>Payment Summary</h3>
                 <div class="fee-item">
                     <span class="fee-label">Monthly Stall Rent:</span>
                     <span class="fee-value">₱<?= number_format($application['stall_price'], 2) ?></span>
@@ -257,7 +833,8 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
                 <div class="mt-6 text-center">
                     <button onclick="location.href='../../digital_card/market_payment_details.php?application_id=<?= $application_id ?>'" 
                             class="btn-pay px-8 py-3 text-lg font-semibold">
-                        💳 Proceed to Payment
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Proceed to Payment
                     </button>
                     <p class="text-sm text-gray-600 mt-2">Secure payment gateway • Multiple payment options available</p>
                 </div>
@@ -269,7 +846,7 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <!-- Stall Details -->
             <div class="info-card">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">🏪 Stall Details</h3>
+                <h3><i class="fas fa-store"></i> Stall Details</h3>
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -312,7 +889,7 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
 
             <!-- Stall Rights Information -->
             <div class="info-card">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">📄 Stall Rights</h3>
+                <h3><i class="fas fa-file-contract"></i> Stall Rights</h3>
                 <div class="space-y-4">
                     <div>
                         <p class="text-sm text-gray-600">Stall Class</p>
@@ -347,7 +924,7 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
 
         <!-- Business Information -->
         <div class="info-card mb-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">💼 Business Information</h3>
+            <h3><i class="fas fa-briefcase"></i> Business Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
                     <div>
@@ -375,7 +952,7 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
         <!-- Uploaded Documents -->
         <?php if (!empty($documents)): ?>
         <div class="info-card mb-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">📎 Uploaded Documents</h3>
+            <h3><i class="fas fa-file-alt"></i> Uploaded Documents</h3>
             <div class="space-y-3">
                 <?php foreach ($documents as $doc): ?>
                 <div class="file-display">
@@ -392,8 +969,12 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
                     </div>
                     <div class="file-actions">
                         <button onclick="openDocumentModal('<?= getFileUrl($doc['file_path']) ?>', '<?= $doc['file_extension'] ?>', '<?= htmlspecialchars($doc['file_name']) ?>', '<?= getDocumentTypeDisplayName($doc['document_type']) ?>')" 
-                                class="btn-view">View</button>
-                        <a href="<?= getFileUrl($doc['file_path']) ?>" download class="btn-download">Download</a>
+                                class="btn-view">
+                            <i class="fas fa-eye mr-1"></i> View
+                        </button>
+                        <a href="<?= getFileUrl($doc['file_path']) ?>" download class="btn-download">
+                            <i class="fas fa-download mr-1"></i> Download
+                        </a>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -402,9 +983,9 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
         <?php endif; ?>
 
         <!-- Next Steps -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
-            <h3 class="text-lg font-bold text-blue-800 mb-3">What's Next?</h3>
-            <ul class="list-disc list-inside text-blue-700 space-y-2">
+        <div class="next-steps">
+            <h3><i class="fas fa-road"></i> What's Next?</h3>
+            <ul>
                 <?php foreach (getNextSteps($application['status']) as $step): ?>
                     <li><?= $step ?></li>
                 <?php endforeach; ?>
@@ -412,20 +993,13 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
         </div>
 
         <!-- Actions -->
-        <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="action-buttons">
             <button onclick="location.href='../market-dashboard.php'" 
-                    class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 w-full sm:w-auto">
-                ← Back to Dashboard
+                    class="btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Dashboard
             </button>
-            <div class="flex gap-3 w-full sm:w-auto">
-                <button onclick="location.href='application_details.php?application_id=<?= $application_id ?>'" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 w-full sm:w-auto">
-                    View Full Details
-                </button>
-                <button onclick="window.print()" 
-                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 w-full sm:w-auto">
-                    Print Summary
-                </button>
+            
             </div>
         </div>
     </div>
@@ -443,7 +1017,9 @@ $total_amount = ($application['stall_price'] ?? 0) + $stall_rights_fee + $applic
                     <iframe id="modalPdf" src="" width="100%" height="500px" style="display: none; border: none;"></iframe>
                     <div id="unsupportedFile" style="display: none; text-align: center; padding: 2rem;">
                         <p>This file type cannot be previewed. Please download the file to view it.</p>
-                        <a id="downloadLink" href="#" download class="btn-download inline-block mt-4">Download File</a>
+                        <a id="downloadLink" href="#" download class="btn-download inline-block mt-4">
+                            <i class="fas fa-download mr-2"></i>Download File
+                        </a>
                     </div>
                 </div>
                 <div class="document-info">

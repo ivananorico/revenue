@@ -206,50 +206,277 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= strtoupper($payment_data['payment_method']) ?> Payment</title>
+    <title><?= strtoupper($payment_data['payment_method']) ?> Payment - Market Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        
         .payment-header {
             background: linear-gradient(135deg, 
                 <?= $payment_data['payment_method'] === 'gcash' ? '#00a64f, #007a3d' : '#00a3ff, #0055ff' ?>);
             color: white;
-            padding: 2rem;
+            padding: 3rem 2rem;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .payment-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .payment-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
         .amount-display {
-            font-size: 3rem;
-            font-weight: bold;
+            font-size: 3.5rem;
+            font-weight: 800;
             text-align: center;
             margin: 2rem 0;
+            background: linear-gradient(135deg, #059669, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .modal {
-            display: none;
+        
+        .payment-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(4px);
         }
+        
         .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
             width: 90%;
-            max-width: 400px;
+            max-width: 450px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+            position: relative;
         }
+        
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4a90e2, #2c5aa0);
+            border-radius: 24px 24px 0 0;
+        }
+        
         .countdown {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 2rem;
+            font-weight: 800;
             text-align: center;
             color: #ef4444;
+            margin: 1.5rem 0;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .verification-input {
+            letter-spacing: 0.5em;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .demo-code {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 12px;
+            padding: 1rem;
             margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4a90e2, #2c5aa0);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        
+        .payment-details {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @media (max-width: 768px) {
+            .payment-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .amount-display {
+                font-size: 2.5rem;
+            }
+            
+            .payment-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .modal-content {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
         }
     </style>
 </head>
@@ -258,67 +485,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
     <!-- Payment Header -->
     <div class="payment-header">
         <div class="max-w-md mx-auto">
-            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-3xl">
-                    <?= $payment_data['payment_method'] === 'gcash' ? 'G' : 'M' ?>
-                </span>
+            <div class="payment-icon">
+                <i class="fas fa-<?= $payment_data['payment_method'] === 'gcash' ? 'mobile-alt' : 'wallet' ?> text-4xl"></i>
             </div>
-            <h1 class="text-3xl font-bold mb-2"><?= strtoupper($payment_data['payment_method']) ?></h1>
-            <p class="text-white/90">Secure Payment Gateway</p>
+            <h1 class="text-4xl font-bold mb-2"><?= strtoupper($payment_data['payment_method']) ?></h1>
+            <p class="text-white/90 text-lg">Secure Payment Gateway</p>
         </div>
     </div>
 
     <!-- Verification Modal -->
-    <div id="verificationModal" class="modal">
+    <div id="verificationModal" class="modal-overlay">
         <div class="modal-content">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl">📱</span>
+                <div class="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-3xl text-blue-600"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Enter Verification Code</h3>
-                <p class="text-gray-600">Enter the code sent to your phone</p>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Enter Verification Code</h3>
+                <p class="text-gray-600">Enter the 6-digit code sent to your phone</p>
                 
                 <!-- Countdown Timer -->
                 <div id="countdown" class="countdown">10:00</div>
                 
                 <?php if (isset($_SESSION['verification_code'])): ?>
-                    <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <p class="text-green-700 font-semibold">Demo Code: <?= $_SESSION['verification_code'] ?></p>
-                        <p class="text-green-600 text-sm">Enter this code to verify</p>
+                    <div class="demo-code">
+                        <p class="font-semibold text-lg">Demo Code: <?= $_SESSION['verification_code'] ?></p>
+                        <p class="text-white/90 text-sm mt-1">Enter this code to verify your payment</p>
                     </div>
                 <?php endif; ?>
             </div>
 
             <form method="POST" id="verificationForm">
                 <div class="mb-6">
-                    <label for="verification_input" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="verification_input" class="block text-sm font-medium text-gray-700 mb-3">
                         Verification Code
                     </label>
                     <input type="text" 
                            name="verification_code" 
                            id="verification_input"
-                           placeholder="Enter 6-digit code"
+                           placeholder="000000"
                            required
                            maxlength="6"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-xl tracking-widest">
+                           class="form-input verification-input text-center tracking-widest">
+                    <p class="text-sm text-gray-500 mt-2 text-center">
+                        6-digit code sent via SMS
+                    </p>
                 </div>
 
                 <?php if (isset($verification_error)): ?>
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                        <p class="text-red-700 text-sm"><?= htmlspecialchars($verification_error) ?></p>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-exclamation-circle text-red-500"></i>
+                            <p class="text-red-700 font-medium"><?= htmlspecialchars($verification_error) ?></p>
+                        </div>
                     </div>
                 <?php endif; ?>
 
                 <div class="flex gap-3">
                     <button type="button" 
                             onclick="closeModal()"
-                            class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200">
+                            class="btn-secondary">
+                        <i class="fas fa-times"></i>
                         Cancel
                     </button>
                     <button type="submit" 
                             id="verifyButton"
-                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200">
-                        ✅ Verify & Pay
+                            class="btn-success">
+                        <i class="fas fa-check-circle"></i>
+                        Verify & Pay
                     </button>
                 </div>
             </form>
@@ -326,35 +559,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
     </div>
 
     <div class="max-w-md mx-auto px-6 py-8">
+        <!-- Security Badge -->
+        <div class="security-badge fade-in-up">
+            <i class="fas fa-lock text-blue-600 text-xl"></i>
+            <span class="text-blue-700 font-semibold">Secure SSL Encrypted Payment</span>
+        </div>
+
         <!-- Amount Display -->
-        <div class="text-center mb-8">
-            <p class="text-gray-600 text-lg mb-2">Total Amount to Pay</p>
-            <div class="amount-display text-green-600">
+        <div class="text-center mb-8 fade-in-up">
+            <p class="text-gray-600 text-lg mb-3">Total Amount to Pay</p>
+            <div class="amount-display">
                 ₱<?= number_format($payment_data['total_amount'], 2) ?>
             </div>
-            <p class="text-gray-500 text-sm">Market Stall Application Fee</p>
+            <p class="text-gray-500">Market Stall Application Fee</p>
         </div>
 
         <?php if (isset($error_message)): ?>
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p class="text-red-700"><?= htmlspecialchars($error_message) ?></p>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 fade-in-up">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                    <p class="text-red-700 font-medium"><?= htmlspecialchars($error_message) ?></p>
+                </div>
             </div>
         <?php endif; ?>
 
         <?php if (isset($success_message)): ?>
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <p class="text-green-700"><?= htmlspecialchars($success_message) ?></p>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 fade-in-up">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                    <p class="text-green-700 font-medium"><?= htmlspecialchars($success_message) ?></p>
+                </div>
             </div>
         <?php endif; ?>
 
         <!-- Payment Form -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+        <div class="payment-card fade-in-up">
             <h2 class="text-xl font-bold text-gray-800 mb-6 text-center">Enter Your Details</h2>
             
             <form method="POST" id="paymentForm">
                 <!-- Phone Number -->
-                <div class="mb-4">
-                    <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="mb-6">
+                    <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-3">
+                        <i class="fas fa-mobile-alt mr-2 text-gray-400"></i>
                         Phone Number *
                     </label>
                     <input type="tel" 
@@ -363,15 +609,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
                            placeholder="09123456789"
                            pattern="09[0-9]{9}"
                            required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="form-input"
+                           value="<?= $_SESSION['phone_number'] ?? '' ?>">
                     <p class="text-sm text-gray-500 mt-2">
-                        Your <?= strtoupper($payment_data['payment_method']) ?> registered number
+                        Your <?= strtoupper($payment_data['payment_method']) ?> registered mobile number
                     </p>
                 </div>
 
                 <!-- Email -->
-                <div class="mb-6">
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="mb-8">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-3">
+                        <i class="fas fa-envelope mr-2 text-gray-400"></i>
                         Email Address *
                     </label>
                     <input type="email" 
@@ -379,27 +627,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
                            id="email"
                            placeholder="your@email.com"
                            required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="form-input"
+                           value="<?= $_SESSION['email'] ?? '' ?>">
                     <p class="text-sm text-gray-500 mt-2">
-                        For payment confirmation and receipt
+                        For payment confirmation and digital receipt
                     </p>
                 </div>
 
                 <button type="submit" 
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200">
-                    📱 Send Verification Code
+                        class="btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Verification Code
                 </button>
             </form>
         </div>
 
         <!-- Payment Details -->
-        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 class="font-semibold text-blue-800 mb-2">Payment Details</h3>
-            <div class="text-sm text-blue-700 space-y-1">
-                <p><strong>Merchant:</strong> Market Portal</p>
-                <p><strong>Reference ID:</strong> APP-<?= $payment_data['application_id'] ?></p>
-                <p><strong>Payment Method:</strong> <?= strtoupper($payment_data['payment_method']) ?></p>
+        <div class="payment-details fade-in-up">
+            <h3 class="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                <i class="fas fa-receipt"></i>
+                Payment Details
+            </h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-blue-700">Merchant:</span>
+                    <span class="font-semibold">Municipal Market Portal</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-blue-700">Reference ID:</span>
+                    <span class="font-semibold">APP-<?= $payment_data['application_id'] ?></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-blue-700">Payment Method:</span>
+                    <span class="font-semibold"><?= strtoupper($payment_data['payment_method']) ?></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-blue-700">Business Name:</span>
+                    <span class="font-semibold"><?= htmlspecialchars($payment_data['business_name']) ?></span>
+                </div>
             </div>
+        </div>
+
+        <!-- Additional Security Info -->
+        <div class="text-center mt-6 fade-in-up">
+            <p class="text-sm text-gray-500 flex items-center justify-center gap-2">
+                <i class="fas fa-shield-alt text-green-500"></i>
+                Your payment is secured with bank-level encryption
+            </p>
         </div>
     </div>
 
@@ -416,7 +690,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
 
         // Modal functions
         function openModal() {
-            document.getElementById('verificationModal').style.display = 'block';
+            document.getElementById('verificationModal').style.display = 'flex';
             startCountdown();
             setTimeout(() => {
                 document.getElementById('verification_input').focus();
@@ -451,19 +725,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
                 
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    countdownElement.textContent = "Expired!";
+                    countdownElement.textContent = "00:00";
                     countdownElement.style.color = "#ef4444";
                     verifyButton.disabled = true;
-                    verifyButton.innerHTML = "⏰ Code Expired";
-                    verifyButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                    verifyButton.classList.add('bg-gray-400');
+                    verifyButton.innerHTML = '<i class="fas fa-clock"></i> Code Expired';
+                    verifyButton.classList.remove('btn-success');
+                    verifyButton.style.background = '#9ca3af';
                     
                     // Show expired message
                     const form = document.getElementById('verificationForm');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'bg-red-50 border border-red-200 rounded-lg p-3 mb-4';
-                    errorDiv.innerHTML = '<p class="text-red-700 text-sm">Verification code has expired. Please request a new one.</p>';
-                    form.insertBefore(errorDiv, form.firstChild);
+                    const existingError = form.querySelector('.bg-red-50');
+                    if (!existingError) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'bg-red-50 border border-red-200 rounded-lg p-4 mb-4';
+                        errorDiv.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                                <p class="text-red-700 font-medium">Verification code has expired. Please request a new one.</p>
+                            </div>
+                        `;
+                        form.insertBefore(errorDiv, form.firstChild);
+                    }
                 }
                 
                 timeLeft--;
@@ -476,6 +758,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verification_code']))
                 openModal();
             });
         <?php endif; ?>
+
+        // Add enter key support for forms
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeForm = document.activeElement.closest('form');
+                if (activeForm) {
+                    const submitButton = activeForm.querySelector('button[type="submit"]');
+                    if (submitButton && !submitButton.disabled) {
+                        submitButton.click();
+                    }
+                }
+            }
+        });
     </script>
 
 </body>

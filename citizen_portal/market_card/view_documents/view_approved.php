@@ -600,10 +600,6 @@ $monthly_rent = $application['contract_rent'] ?: $application['stall_price'];
             </ul>
             
             <div class="mt-4 text-center">
-                <button onclick="location.href='pay_rent.php?application_id=<?= $application_id ?>'" 
-                        class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 text-lg">
-                    💰 Pay Monthly Rent Now
-                </button>
                 <p class="text-sm text-gray-600 mt-2">Secure payment • Due on 5th of each month</p>
             </div>
         </div>
@@ -619,10 +615,7 @@ $monthly_rent = $application['contract_rent'] ?: $application['stall_price'];
                         class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 w-full sm:w-auto">
                     Print Summary
                 </button>
-                <button onclick="location.href='pay_rent.php?application_id=<?= $application_id ?>'" 
-                        class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 w-full sm:w-auto">
-                    💰 Pay Rent
-                </button>
+                
             </div>
         </div>
     </div>

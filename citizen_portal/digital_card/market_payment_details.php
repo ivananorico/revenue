@@ -122,21 +122,112 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Details - Market Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../navbar.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+        }
+        
+        /* Header Styles */
+        .payment-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .payment-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #2c5aa0 0%, #4a90e2 50%, #2c5aa0 100%);
+        }
+        
+        .payment-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2c5aa0 0%, #4a90e2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .payment-header p {
+            color: #6b7280;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        /* Card Styles */
+        .payment-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .payment-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1rem;
+        }
+        
+        /* Payment Method Styles */
         .payment-method {
             border: 2px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            border-radius: 16px;
+            padding: 2rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .payment-method::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4a90e2, #2c5aa0);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
         
         .payment-method:hover {
             border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
         
         .payment-method.selected {
@@ -144,15 +235,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #f0f9ff;
         }
         
+        .payment-method.selected::before {
+            transform: scaleX(1);
+        }
+        
         .payment-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+            font-size: 1.75rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .payment-method:hover .payment-icon {
+            transform: scale(1.05);
         }
         
         .maya-icon {
@@ -165,23 +266,225 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: white;
         }
         
+        .payment-method h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .payment-method p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* Fee Breakdown */
         .fee-item {
             display: flex;
             justify-content: space-between;
-            padding: 0.75rem 0;
+            align-items: center;
+            padding: 1rem 0;
             border-bottom: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .fee-item:hover {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0 -0.5rem;
         }
         
         .fee-item:last-child {
             border-bottom: none;
         }
         
+        .fee-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .fee-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
         .fee-total {
             border-top: 2px solid #059669;
-            padding-top: 1rem;
-            margin-top: 0.5rem;
+            padding-top: 1.25rem;
+            margin-top: 0.75rem;
+            background: #f0f9ff;
+            margin: 1rem -1.5rem 0;
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+        }
+        
+        .fee-total .fee-label {
+            color: #1f2937;
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
+        }
+        
+        .fee-total .fee-value {
+            color: #059669;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+        
+        /* Application Summary */
+        .application-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .summary-label {
+            color: #0369a1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .summary-value {
+            color: #0c4a6e;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        /* Info Boxes */
+        .info-box {
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .instructions-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+        }
+        
+        .notes-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #fcd34d;
+        }
+        
+        .info-box h3 {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .instructions-box h3 {
+            color: #0369a1;
+        }
+        
+        .notes-box h3 {
+            color: #92400e;
+        }
+        
+        .info-box ul, .info-box ol {
+            color: inherit;
+            padding-left: 1.25rem;
+        }
+        
+        .info-box li {
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #4a90e2, #2c5aa0);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .payment-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .payment-header h1 {
+                font-size: 2rem;
+            }
+            
+            .payment-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-method {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -189,34 +492,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include '../../citizen_portal/navbar.php'; ?>
 
-    <div class="container mx-auto px-6 py-8">
+    <div class="container mx-auto px-4 py-8">
         <!-- Header -->
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">Complete Your Payment</h1>
-            <p class="text-xl text-gray-600">Secure payment for your market stall application</p>
+        <div class="payment-header">
+            <h1>Complete Your Payment</h1>
+            <p>Secure payment for your market stall application</p>
         </div>
 
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-6xl mx-auto">
             <!-- Application Summary -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Application Summary</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-sm text-gray-600">Application ID</p>
-                        <p class="font-semibold text-lg">#<?= $application['id'] ?></p>
-                        
-                        <p class="text-sm text-gray-600 mt-4">Business Name</p>
-                        <p class="font-semibold"><?= htmlspecialchars($application['business_name']) ?></p>
-                        
-                        <p class="text-sm text-gray-600 mt-4">Stall Location</p>
-                        <p class="font-semibold"><?= htmlspecialchars($application['market_name']) ?> - <?= htmlspecialchars($application['stall_number']) ?></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Stall Class</p>
-                        <p class="font-semibold">Class <?= $application['class_name'] ?></p>
-                        
-                        <p class="text-sm text-gray-600 mt-4">Applicant Name</p>
-                        <p class="font-semibold"><?= htmlspecialchars($full_name) ?></p>
+            <div class="payment-card mb-8">
+                <h2><i class="fas fa-receipt"></i> Application Summary</h2>
+                <div class="application-summary">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label">Application ID</span>
+                            <span class="summary-value">#<?= $application['id'] ?></span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Business Name</span>
+                            <span class="summary-value"><?= htmlspecialchars($application['business_name']) ?></span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Stall Location</span>
+                            <span class="summary-value"><?= htmlspecialchars($application['market_name']) ?> - <?= htmlspecialchars($application['stall_number']) ?></span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Stall Class</span>
+                            <span class="summary-value">Class <?= $application['class_name'] ?></span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Applicant Name</span>
+                            <span class="summary-value"><?= htmlspecialchars($full_name) ?></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -224,95 +532,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Payment Details -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Left Column - Payment Methods -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Choose Payment Method</h2>
+                <div class="payment-card">
+                    <h2><i class="fas fa-credit-card"></i> Choose Payment Method</h2>
                     
                     <?php if (isset($error_message)): ?>
                         <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                            <p class="text-red-700"><?= htmlspecialchars($error_message) ?></p>
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+                                <p class="text-red-700 font-medium"><?= htmlspecialchars($error_message) ?></p>
+                            </div>
                         </div>
                     <?php endif; ?>
 
-                    <!-- REMOVED target="_blank" from the form -->
                     <form id="paymentForm" method="POST">
                         <!-- Maya Payment Method -->
                         <div class="payment-method mb-4" onclick="selectPaymentMethod('maya')">
                             <input type="radio" name="payment_method" value="maya" id="maya" class="hidden" required>
                             <div class="payment-icon maya-icon">
-                                M
+                                <i class="fas fa-wallet"></i>
                             </div>
-                            <h3 class="font-semibold text-lg text-gray-800 mb-2">Maya</h3>
-                            <p class="text-gray-600 text-sm">Pay using Maya wallet</p>
+                            <h3>Maya</h3>
+                            <p>Pay securely using your Maya wallet with instant processing</p>
                         </div>
 
                         <!-- GCash Payment Method -->
                         <div class="payment-method" onclick="selectPaymentMethod('gcash')">
                             <input type="radio" name="payment_method" value="gcash" id="gcash" class="hidden" required>
                             <div class="payment-icon gcash-icon">
-                                G
+                                <i class="fas fa-mobile-alt"></i>
                             </div>
-                            <h3 class="font-semibold text-lg text-gray-800 mb-2">GCash</h3>
-                            <p class="text-gray-600 text-sm">Pay using GCash wallet</p>
+                            <h3>GCash</h3>
+                            <p>Pay conveniently using your GCash account with quick confirmation</p>
                         </div>
 
                         <!-- Submit Button -->
                         <button type="submit" 
                                 id="submitButton"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 mt-6 hidden">
-                            ✅ Continue to Payment
+                                class="btn-primary mt-6 hidden">
+                            <i class="fas fa-lock"></i>
+                            Continue to Payment
                         </button>
                     </form>
                 </div>
 
                 <!-- Right Column - Payment Summary -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Payment Summary</h2>
+                <div class="payment-card">
+                    <h2><i class="fas fa-file-invoice-dollar"></i> Payment Summary</h2>
                     
-                    <div class="space-y-4">
+                    <div class="space-y-2">
                         <div class="fee-item">
-                            <span class="text-gray-600">Monthly Stall Rent</span>
-                            <span class="font-semibold">₱<?= number_format($application['stall_price'], 2) ?></span>
+                            <span class="fee-label">Monthly Stall Rent</span>
+                            <span class="fee-value">₱<?= number_format($application['stall_price'], 2) ?></span>
                         </div>
                         
                         <div class="fee-item">
-                            <span class="text-gray-600">Stall Rights Fee (Class <?= $application['class_name'] ?>)</span>
-                            <span class="font-semibold">₱<?= number_format($stall_rights_fee, 2) ?></span>
+                            <span class="fee-label">Stall Rights Fee (Class <?= $application['class_name'] ?>)</span>
+                            <span class="fee-value">₱<?= number_format($stall_rights_fee, 2) ?></span>
                         </div>
                         
                         <div class="fee-item">
-                            <span class="text-gray-600">Application Fee</span>
-                            <span class="font-semibold">₱<?= number_format($application_fee, 2) ?></span>
+                            <span class="fee-label">Application Fee</span>
+                            <span class="fee-value">₱<?= number_format($application_fee, 2) ?></span>
                         </div>
                         
                         <div class="fee-item">
-                            <span class="text-gray-600">Security Bond</span>
-                            <span class="font-semibold">₱<?= number_format($security_bond, 2) ?></span>
+                            <span class="fee-label">Security Bond</span>
+                            <span class="fee-value">₱<?= number_format($security_bond, 2) ?></span>
                         </div>
                         
                         <div class="fee-item fee-total">
-                            <span class="text-gray-800">Total Amount</span>
-                            <span class="text-green-600">₱<?= number_format($total_amount, 2) ?></span>
+                            <span class="fee-label">Total Amount Due</span>
+                            <span class="fee-value">₱<?= number_format($total_amount, 2) ?></span>
                         </div>
                     </div>
 
                     <!-- Payment Instructions -->
-                    <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h3 class="font-semibold text-blue-800 mb-2">How to Pay</h3>
-                        <ol class="text-sm text-blue-700 list-decimal list-inside space-y-1">
-                            <li>Select your preferred payment method</li>
-                            <li>Click "Continue to Payment"</li>
+                    <div class="info-box instructions-box">
+                        <h3><i class="fas fa-info-circle"></i> How to Pay</h3>
+                        <ol class="text-sm space-y-2">
+                            <li>Select your preferred payment method (Maya or GCash)</li>
+                            <li>Click "Continue to Payment" to proceed</li>
                             <li>Complete the payment process on the next page</li>
-                            <li>Your stall will be reserved upon successful payment</li>
+                            <li>Your stall will be automatically reserved upon successful payment</li>
+                            <li>You will receive a confirmation email and receipt</li>
                         </ol>
                     </div>
 
                     <!-- Important Notes -->
-                    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <h3 class="font-semibold text-yellow-800 mb-2">Important Notes</h3>
-                        <ul class="text-sm text-yellow-700 list-disc list-inside space-y-1">
-                            <li>Payment must be completed within 24 hours</li>
-                            <li>Your stall will be reserved upon successful payment</li>
-                            <li>Contact support if you encounter any issues</li>
+                    <div class="info-box notes-box">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Important Notes</h3>
+                        <ul class="text-sm space-y-2">
+                            <li>Payment must be completed within 24 hours to secure your stall</li>
+                            <li>Security bond is refundable upon contract termination</li>
+                            <li>Contact municipal support if you encounter any payment issues</li>
+                            <li>All payments are secured and encrypted</li>
                         </ul>
                     </div>
                 </div>
@@ -321,8 +634,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Back Button -->
             <div class="text-center mt-8">
                 <a href="../market_card/view_documents/view_pending.php?application_id=<?= $application_id ?>" 
-                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-semibold">
-                    ← Back to Application Details
+                   class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Application Details
                 </a>
             </div>
         </div>
@@ -346,16 +660,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById(method).checked = true;
             
             // Show submit button
-            document.getElementById('submitButton').classList.remove('hidden');
+            const submitButton = document.getElementById('submitButton');
+            submitButton.classList.remove('hidden');
+            submitButton.innerHTML = `<i class="fas fa-lock"></i> Continue with ${method.charAt(0).toUpperCase() + method.slice(1)}`;
         }
 
         // Form submission handling
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
             if (!selectedMethod) {
                 e.preventDefault();
-                alert('Please select a payment method.');
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bg-red-50 border border-red-200 rounded-lg p-4 mb-6';
+                errorDiv.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+                        <p class="text-red-700 font-medium">Please select a payment method to continue.</p>
+                    </div>
+                `;
+                
+                // Remove existing error messages
+                const existingErrors = document.querySelectorAll('.bg-red-50');
+                existingErrors.forEach(error => error.remove());
+                
+                // Insert error message
+                const form = document.getElementById('paymentForm');
+                form.insertBefore(errorDiv, form.firstChild);
+                
                 return;
             }
+        });
+
+        // Add animation to cards on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.payment-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
         });
     </script>
 
